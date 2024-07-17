@@ -35,3 +35,4 @@ steps:
       provider: 'azurerm'
       command: 'apply'
       commandOptions: 'main.tfout'
+      environmentServiceNameAzureRM: 'AlphaDevARM'
