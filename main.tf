@@ -1,36 +1,51 @@
 # Variables - move to seperate file when too many
 variable "resource_prefix" {
   description = "Prefix for all resources"
-  default     = "dhscscdap"
+  default     = "dapalpha"
+}
+
+variable "environment" {
+  description = "Deployment environment"
+  default     = "dev"
 }
 
 # Providers
 terraform {
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "3.112.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "2.53.1"
+    }
+  }
+  backend "azurerm" {}
+}
+
+provider "azurerm" {
+  skip_provider_registration = true
+  features {
   }
 }
 
-# AWS
-provider "aws" {
-  region = "eu-west-2"
-}
 
-# Datalake
-
-resource "aws_s3_bucket" "datalake_raw" {
-  bucket = format("%sdatalakeraw", var.resource_prefix)
-}
-
-resource "aws_s3_bucket" "datalake_curated" {
-  bucket = format("%sdatalakecurated", var.resource_prefix)
+resource "azurerm_resource_group" "rg_core" {
+  name     = "coreinfra-rg"
+  location = "UK South"
 }
 
 
-resource "aws_s3_bucket" "datalake_reporting" {
-  bucket = format("%sdatalakereporting", var.resource_prefix)
+resource "azurerm_storage_account" "sc_infra" {
+  name                     = "${var.resource_prefix}infra${var.environment}"
+  resource_group_name      = azurerm_resource_group.rg_core.name
+  location                 = azurerm_resource_group.rg_core.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
 }
 
+resource "azurerm_storage_container" "sc_infra_container" {
+  name                 = "tfstate"
+  storage_account_name = azurerm_storage_account.sc_infra.name
+}
