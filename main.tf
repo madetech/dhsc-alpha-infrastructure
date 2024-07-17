@@ -30,6 +30,10 @@ provider "azurerm" {
   }
 }
 
+provider "azuread" {
+  tenant_id = "fe486d5c-e2e4-4d1d-9af1-9c4f44b434b2"
+}
+
 # Core infra
 
 resource "azurerm_resource_group" "rg_core" {
@@ -37,6 +41,13 @@ resource "azurerm_resource_group" "rg_core" {
   location = "UK South"
 }
 
+# Entra groups
+resource "azuread_group" "sql_admin_group" {
+  display_name     = format("%s - %s", "DAP Alpha - SQL Admins", upper(var.environment))
+  security_enabled = true
+}
+
+# Infrastructure
 
 resource "azurerm_storage_account" "sc_infra" {
   name                     = "${var.resource_prefix}infra${var.environment}"
@@ -85,7 +96,7 @@ resource "azurerm_storage_container" "sc_datalake_reporting_container" {
 
 
 # ADF
-resource "azurerm_data_factory" "adf-data" {
+resource "azurerm_data_factory" "adf_data" {
   name                = "${var.resource_prefix}-adf-data-${var.environment}"
   resource_group_name = azurerm_resource_group.rg_data.name
   location            = azurerm_resource_group.rg_data.location
@@ -101,4 +112,53 @@ resource "azurerm_data_factory" "adf-data" {
   identity {
     type = "SystemAssigned"
   }
+}
+
+# Create MS SQL database for data rg - nwldatasql
+resource "azurerm_mssql_server" "data_sql" {
+  name                = "${var.resource_prefix}-sql-data-${var.environment}"
+  resource_group_name = azurerm_resource_group.rg_data.name
+  location            = azurerm_resource_group.rg_data.location
+  version             = "12.0"
+  minimum_tls_version = "1.2"
+
+  azuread_administrator {
+    login_username              = azuread_group.sql_admin_group.display_name
+    object_id                   = azuread_group.sql_admin_group.id
+    azuread_authentication_only = true
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+}
+
+# Create MS SQL database for data rg 
+resource "azurerm_mssql_database" "data_db_sql" {
+  name           = "Analytical_Datastore"
+  server_id      = azurerm_mssql_server.data_sql.id
+  sku_name       = "Basic"
+  zone_redundant = false
+}
+
+resource "azurerm_mssql_firewall_rule" "sql_internalazure" {
+  name             = "AllowAllWindowsAzureIps" # Azure needs this exact name for this rule
+  server_id        = azurerm_mssql_server.data_sql.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
+
+# Make ADF an admin of the SQL server - temporary
+resource "azuread_group_member" "adf_sql_access" {
+  group_object_id  = azuread_group.sql_admin_group.id
+  member_object_id = azurerm_data_factory.adf_data.identity[0].principal_id
+}
+
+
+resource "azurerm_role_assignment" "adf_lake_access" {
+  scope                = azurerm_storage_account.sc_datalake.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_data_factory.adf_data.identity[0].principal_id
 }
