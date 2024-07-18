@@ -58,7 +58,7 @@ stages:
   - stage: Apply${{environment.name}}
     jobs:
     - deployment: DeployTerraform
-      environment: dev
+      environment: ${{environment.name}}
     - job: Apply
       steps:
       - task: TerraformInstaller@1
