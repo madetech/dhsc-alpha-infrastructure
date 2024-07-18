@@ -65,5 +65,5 @@ stages:
       inputs:
         provider: 'azurerm'
         command: 'apply'
-        commandOptions: 'main.tfout'
+        commandOptions: '$(Pipeline.Workspace)/main.tfout'
         environmentServiceNameAzureRM: 'AlphaDevARM'
