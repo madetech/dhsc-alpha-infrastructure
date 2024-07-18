@@ -41,6 +41,8 @@ stages:
         publishLocation: 'pipeline'
 - stage: Apply
   jobs:
+  - deployment: DeployTerraform
+    environment: dev
   - job: Apply
     steps:
     - task: TerraformInstaller@1
