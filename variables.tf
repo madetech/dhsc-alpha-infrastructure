@@ -19,5 +19,5 @@ variable "location" {
 variable "docker_frontend_image" {
   type = string
   description = "Name of the frontend docker image"
-  default = "dapalpha:latest"
+  default = "dapalpha"
 }
