@@ -9,30 +9,61 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-  - task: TerraformInstaller@1
-    inputs:
-      terraformVersion: 'latest'
-  - checkout: self
-    displayName: 'Checkout repo'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'init'
-      backendServiceArm: 'AlphaDevARM'
-      backendAzureRmResourceGroupName: 'coreinfra-rg'
-      backendAzureRmStorageAccountName: 'dapalphainfradev'
-      backendAzureRmContainerName: 'tfstate'
-      backendAzureRmKey: 'infrastructure.terraform.tfstate'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'plan'
-      commandOptions: '-out main.tfout'
-      environmentServiceNameAzureRM: 'AlphaDevARM'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'apply'
-      commandOptions: 'main.tfout'
-      environmentServiceNameAzureRM: 'AlphaDevARM'
+stages:
+- stage: Plan
+  jobs:
+  - job: Plan
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+    - checkout: self
+      displayName: 'Checkout repo'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        backendServiceArm: 'AlphaDevARM'
+        backendAzureRmResourceGroupName: 'coreinfra-rg'
+        backendAzureRmStorageAccountName: 'dapalphainfradev'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'infrastructure.terraform.tfstate'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        commandOptions: '-out main.tfout'
+        environmentServiceNameAzureRM: 'AlphaDevARM'
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: 'main.tfout'
+        artifact: 'TerraformPlans'
+        publishLocation: 'pipeline'
+- stage: Apply
+  jobs:
+  - job: Apply
+    steps:
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: 'latest'
+    - checkout: self
+      displayName: 'Checkout repo'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        backendServiceArm: 'AlphaDevARM'
+        backendAzureRmResourceGroupName: 'coreinfra-rg'
+        backendAzureRmStorageAccountName: 'dapalphainfradev'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'infrastructure.terraform.tfstate'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: TerraformPlans
+        targetPath: '$(Pipeline.Workspace)'
+    - task: TerraformTaskV4@4
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        commandOptions: 'main.tfout'
+        environmentServiceNameAzureRM: 'AlphaDevARM'
