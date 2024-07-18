@@ -1,14 +1,3 @@
-# Variables - move to seperate file when too many
-variable "resource_prefix" {
-  description = "Prefix for all resources"
-  default     = "dapalpha"
-}
-
-variable "environment" {
-  description = "Deployment environment"
-  default     = "dev"
-}
-
 # Providers
 terraform {
   required_providers {
