@@ -43,7 +43,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     always_on                               = false
     container_registry_use_managed_identity = true
     application_stack {
-      docker_image_name   = "dap-alpha:latest"
+      docker_image_name   = var.docker_image
       docker_registry_url = "https://${var.dap_acr_registry_url}"
     }
   }
@@ -52,9 +52,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     identity_ids = [azurerm_user_assigned_identity.dap_alpha_assigned_identity.id]
   }
   app_settings = {
-    "WEBSITES_PORT"              = 8080
-    "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.dap_alpha_assigned_identity.client_id
-    "ENV"                        = var.environment
+    "CONTAINER_PORT"              = 8080
   }
 }
 
