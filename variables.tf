@@ -9,3 +9,15 @@ variable "environment" {
   description = "Deployment environment"
   default     = "dev"
 }
+
+variable "location" {
+  type = string
+  description = "Azure deployment Region"
+  default = "UK South"
+}
+
+variable "docker_frontend_image" {
+  type = string
+  description = "Name of the frontend docker image"
+  default = "dap_frontend_image"
+}
