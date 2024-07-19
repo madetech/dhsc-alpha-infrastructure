@@ -1,11 +1,13 @@
 variable "acr_rg" {
-  type = string
+  type     = string
   nullable = false
 }
+variable "resource_prefix" {}
+variable "environment" {}
 variable "acr_location" {}
 
 resource "azurerm_container_registry" "acr" {
-  name                = "dapalpha"
+  name                = "${var.resource_prefix}acr${var.environment}"
   resource_group_name = var.acr_rg
   location            = var.acr_location
   sku                 = "Basic"
