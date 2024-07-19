@@ -17,12 +17,6 @@ resource "azurerm_user_assigned_identity" "dap_alpha_assigned_identity" {
 }
 
 
-resource "azurerm_role_assignment" "webapp_acr_pull" {
-  scope                            = var.dap_acr_id
-  role_definition_name             = "AcrPull"
-  principal_id                     = azurerm_user_assigned_identity.dap_alpha_assigned_identity.principal_id
-  skip_service_principal_aad_check = false
-}
 
 
 resource "azurerm_service_plan" "dap_alpha_service_plan" {
@@ -39,7 +33,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
   location            = var.location
   service_plan_id     = azurerm_service_plan.dap_alpha_service_plan.id
 
-   site_config {
+  site_config {
     always_on                               = false
     container_registry_use_managed_identity = true
     application_stack {
@@ -52,7 +46,13 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     identity_ids = [azurerm_user_assigned_identity.dap_alpha_assigned_identity.id]
   }
   app_settings = {
-    "CONTAINER_PORT"              = 8080
+    "CONTAINER_PORT" = 8080
   }
 }
 
+resource "azurerm_role_assignment" "webapp_scheduling_acr_pull" {
+  scope                            = var.dap_acr_id
+  role_definition_name             = "AcrPull"
+  principal_id                     = azurerm_linux_web_app.dap-alpha-app.identity[0].principal_id
+  skip_service_principal_aad_check = false
+}
