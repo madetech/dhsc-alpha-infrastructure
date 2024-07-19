@@ -9,30 +9,79 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-  - task: TerraformInstaller@1
-    inputs:
-      terraformVersion: 'latest'
-  - checkout: self
-    displayName: 'Checkout repo'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'init'
-      backendServiceArm: 'AlphaDevARM'
-      backendAzureRmResourceGroupName: 'coreinfra-rg'
-      backendAzureRmStorageAccountName: 'dapalphainfradev'
-      backendAzureRmContainerName: 'tfstate'
-      backendAzureRmKey: 'infrastructure.terraform.tfstate'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'plan'
-      commandOptions: '-out main.tfout'
-      environmentServiceNameAzureRM: 'AlphaDevARM'
-  - task: TerraformTaskV4@4
-    inputs:
-      provider: 'azurerm'
-      command: 'apply'
-      commandOptions: 'main.tfout'
-      environmentServiceNameAzureRM: 'AlphaDevARM'
+variables:
+- group: arm_service_connection
+- group: subscription_id
+
+parameters:
+- name: environments
+  type: object
+  default:
+  - name: dev
+    arm_connection: '$(dev_arm_service_connections)'
+    subscription_id: '$(dev_subscription_id)'
+  - name: prod
+    arm_connection: '$(prod_arm_service_connections)'
+    subscription_id: '$(prod_subscription_id)'
+
+stages:
+- ${{ each environment in parameters.environments}}:
+  - stage: Plan${{environment.name}}
+    jobs:
+    - job: Plan
+      steps:
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
+      - checkout: self
+        displayName: 'Checkout repo'
+      - task: TerraformTaskV4@4
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          backendServiceArm: '${{environment.arm_connection}}'
+          backendAzureRmResourceGroupName: 'coreinfra-rg'
+          backendAzureRmStorageAccountName: 'dapalphainfra${{environment.name}}'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'infrastructure.terraform.tfstate'
+      - task: TerraformTaskV4@4
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          commandOptions: '-out main.tfout -var="environment=${{environment.name}}"'
+          environmentServiceNameAzureRM: '${{environment.arm_connection}}'
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: 'main.tfout'
+          artifact: 'TerraformPlans${{environment.name}}'
+          publishLocation: 'pipeline'
+  - stage: Apply${{environment.name}}
+    jobs:
+    - deployment: DeployTerraform
+      environment: ${{environment.name}}
+    - job: Apply
+      steps:
+      - task: TerraformInstaller@1
+        inputs:
+          terraformVersion: 'latest'
+      - checkout: self
+        displayName: 'Checkout repo'
+      - task: TerraformTaskV4@4
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          backendServiceArm: '${{environment.arm_connection}}'
+          backendAzureRmResourceGroupName: 'coreinfra-rg'
+          backendAzureRmStorageAccountName: 'dapalphainfra${{environment.name}}'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'infrastructure.terraform.tfstate'
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: 'TerraformPlans${{environment.name}}'
+          targetPath: '$(Pipeline.Workspace)'
+      - task: TerraformTaskV4@4
+        inputs:
+          provider: 'azurerm'
+          command: 'apply'
+          commandOptions: '$(Pipeline.Workspace)/main.tfout'
+          environmentServiceNameAzureRM: '${{environment.arm_connection}}'
