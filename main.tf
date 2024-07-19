@@ -151,3 +151,12 @@ resource "azurerm_role_assignment" "adf_lake_access" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_data_factory.adf_data.identity[0].principal_id
 }
+
+# Assign directory role to SQL server
+resource "azuread_directory_role" "directory_reader" {
+  display_name = "Directory Readers"
+}
+resource "azuread_directory_role_assignment" "sql_server_directory_readers" {
+  principal_object_id = azurerm_mssql_server.data_sql.identity[0].principal_id
+  role_id             = azuread_directory_role.directory_reader.id
+}
