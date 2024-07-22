@@ -156,7 +156,25 @@ resource "azurerm_role_assignment" "adf_lake_access" {
 resource "azuread_directory_role" "directory_reader" {
   display_name = "Directory Readers"
 }
+
 resource "azuread_directory_role_assignment" "sql_server_directory_readers" {
   principal_object_id = azurerm_mssql_server.data_sql.identity[0].principal_id
   role_id             = azuread_directory_role.directory_reader.id
+
+module "acr" {
+  source          = "./modules/acr"
+  acr_rg          = azurerm_resource_group.rg_core.name
+  acr_location    = var.location
+  resource_prefix = var.resource_prefix
+  environment     = var.environment
+}
+
+module "app_service" {
+  source               = "./modules/app-service"
+  environment          = var.environment
+  location             = var.location
+  dap_acr_id           = module.acr.acr_id
+  dap_acr_registry_url = module.acr.registry_url
+  docker_image         = var.docker_frontend_image
+  resource_prefix      = var.resource_prefix
 }
