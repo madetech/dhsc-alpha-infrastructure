@@ -151,3 +151,22 @@ resource "azurerm_role_assignment" "adf_lake_access" {
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_data_factory.adf_data.identity[0].principal_id
 }
+
+
+module "acr" {
+  source          = "./modules/acr"
+  acr_rg          = azurerm_resource_group.rg_core.name
+  acr_location    = var.location
+  resource_prefix = var.resource_prefix
+  environment     = var.environment
+}
+
+module "app_service" {
+  source               = "./modules/app-service"
+  environment          = var.environment
+  location             = var.location
+  dap_acr_id           = module.acr.acr_id
+  dap_acr_registry_url = module.acr.registry_url
+  docker_image         = var.docker_frontend_image
+  resource_prefix      = var.resource_prefix
+}
