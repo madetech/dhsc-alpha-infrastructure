@@ -36,6 +36,18 @@ resource "azuread_group" "sql_admin_group" {
   security_enabled = true
 }
 
+resource "azuread_group" "sql_reader_group" {
+  display_name     = "DAP Alpha - SQL Readers - ${upper(var.environment)}"
+  security_enabled = true
+}
+
+
+resource "azuread_group" "sql_writer_group" {
+  display_name     = "DAP Alpha - SQL Writers - ${upper(var.environment)}"
+  security_enabled = true
+}
+
+
 # Infrastructure
 
 resource "azurerm_storage_account" "sc_infra" {
@@ -159,7 +171,7 @@ resource "azuread_directory_role" "directory_reader" {
 
 resource "azuread_directory_role_assignment" "sql_server_directory_readers" {
   principal_object_id = azurerm_mssql_server.data_sql.identity[0].principal_id
-  role_id             = azuread_directory_role.directory_reader.id
+  role_id             = azuread_directory_role.directory_reader.template_id
 }
 
 module "acr" {
