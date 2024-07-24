@@ -36,6 +36,18 @@ resource "azuread_group" "sql_admin_group" {
   security_enabled = true
 }
 
+resource "azuread_group" "sql_reader_group" {
+  display_name     = "DAP Alpha - SQL Readers - ${upper(var.environment)}"
+  security_enabled = true
+}
+
+
+resource "azuread_group" "sql_writer_group" {
+  display_name     = "DAP Alpha - SQL Writers - ${upper(var.environment)}"
+  security_enabled = true
+}
+
+
 # Infrastructure
 
 resource "azurerm_storage_account" "sc_infra" {
