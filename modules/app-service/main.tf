@@ -22,6 +22,7 @@ resource "time_rotating" "sp_dap_alpha_auth_rotation" {
 
 resource "azuread_service_principal_password" "sp_dap_alpha_auth_secret" {
   service_principal_id = azuread_service_principal.sp_dap_alpha_auth.object_id
+  display_name         = "${var.resource_prefix}-auth-secret-${var.environment}"
   rotate_when_changed = {
     rotation = time_rotating.sp_dap_alpha_auth_rotation.id
   }
