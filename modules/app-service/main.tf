@@ -79,7 +79,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
   auth_settings_v2 {
     auth_enabled           = true
     require_authentication = true
-    #default_provider = "azureactivedirectory"
+    default_provider       = "azureactivedirectory"
     active_directory_v2 {
       client_id                  = azuread_service_principal.sp_dap_alpha_auth.client_id
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
