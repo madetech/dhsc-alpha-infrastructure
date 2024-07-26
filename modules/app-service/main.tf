@@ -88,7 +88,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
 }
 
 resource "azuread_application_redirect_uris" "app_dap_alpha_auth_redirect_uris" {
-  application_id = azuread_application_registration.app_dap_alpha_auth.object_id
+  application_id = azuread_application_registration.app_dap_alpha_auth.id
   type           = "Web"
   redirect_uris = [
     "https://${azurerm_linux_web_app.dap-alpha-app.default_hostname}/.auth/login/aad/callback"
