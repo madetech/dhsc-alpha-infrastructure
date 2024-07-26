@@ -13,6 +13,11 @@ resource "azuread_application" "app_dap_alpha_auth" {
   api {
     requested_access_token_version = 2
   }
+  web {
+    implicit_grant {
+      id_token_issuance_enabled = true
+    }
+  }
 }
 
 resource "azuread_service_principal" "sp_dap_alpha_auth" {
