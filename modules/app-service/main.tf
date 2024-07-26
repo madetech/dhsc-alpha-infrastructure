@@ -7,6 +7,9 @@ variable "resource_prefix" {}
 
 resource "azuread_application" "app_dap_alpha_auth" {
   display_name = "${var.resource_prefix}-auth-${var.environment}"
+  api {
+    requested_access_token_version = 2
+  }
 }
 
 resource "azuread_service_principal" "sp_dap_alpha_auth" {
