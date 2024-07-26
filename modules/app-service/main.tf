@@ -5,6 +5,25 @@ variable "dap_acr_registry_url" {}
 variable "docker_image" {}
 variable "resource_prefix" {}
 
+resource "azuread_application" "app_dap_alpha_auth" {
+  display_name = "${var.resource_prefix}-auth-${var.environment}"
+}
+
+resource "azuread_service_principal" "sp_dap_alpha_auth" {
+  client_id = azuread_application.app_dap_alpha_auth.client_id
+}
+
+resource "time_rotating" "sp_dap_alpha_auth_rotation" {
+  rotation_days = 30
+}
+
+resource "azuread_service_principal_password" "sp_dap_alpha_auth_secret" {
+  service_principal_id = azuread_service_principal.sp_dap_alpha_auth.object_id
+  rotate_when_changed = {
+    rotation = time_rotating.sp_dap_alpha_auth_rotation.id
+  }
+}
+
 
 resource "azurerm_resource_group" "frontend_rg" {
   name     = "${var.resource_prefix}-${var.environment}-rg"
@@ -15,9 +34,6 @@ resource "azurerm_user_assigned_identity" "dap_alpha_assigned_identity" {
   resource_group_name = azurerm_resource_group.frontend_rg.name
   location            = azurerm_resource_group.frontend_rg.location
 }
-
-
-
 
 resource "azurerm_service_plan" "dap_alpha_service_plan" {
   name                = "${var.resource_prefix}-${var.environment}-service-plan"
@@ -47,6 +63,18 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
   }
   app_settings = {
     "CONTAINER_PORT" = 8080
+  }
+  auth_settings_v2 {
+    auth_enabled           = true
+    require_authentication = true
+    #default_provider = "azureactivedirectory"
+    microsoft_v2 {
+      client_id                  = azuread_service_principal.sp_dap_alpha_auth.client_id
+      client_secret_setting_name = azuread_service_principal_password.sp_dap_alpha_auth_secret.display_name
+    }
+    login {
+      token_store_enabled = true
+    }
   }
 }
 
