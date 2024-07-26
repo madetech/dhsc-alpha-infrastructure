@@ -4,6 +4,9 @@ variable "dap_acr_id" {}
 variable "dap_acr_registry_url" {}
 variable "docker_image" {}
 variable "resource_prefix" {}
+variable "tenant_id" {
+
+}
 
 resource "azuread_application" "app_dap_alpha_auth" {
   display_name = "${var.resource_prefix}-auth-${var.environment}"
@@ -72,8 +75,9 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     auth_enabled           = true
     require_authentication = true
     #default_provider = "azureactivedirectory"
-    microsoft_v2 {
+    active_directory_v2 {
       client_id                  = azuread_service_principal.sp_dap_alpha_auth.client_id
+      tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
       client_secret_setting_name = azuread_service_principal_password.sp_dap_alpha_auth_secret.display_name
     }
     login {
