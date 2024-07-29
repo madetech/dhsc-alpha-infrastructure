@@ -30,9 +30,10 @@ resource "azurerm_linux_function_app" "func_app" {
   resource_group_name = azurerm_resource_group.functions_rg.name
   location            = azurerm_resource_group.functions_rg.location
 
-  storage_account_name          = azurerm_storage_account.sa_functions.name
-  storage_uses_managed_identity = true
-  service_plan_id               = azurerm_service_plan.sp_functions.id
+  storage_account_name = azurerm_storage_account.sa_functions.name
+  #storage_uses_managed_identity = true
+  storage_account_access_key = azurerm_storage_account.sa_functions.primary_access_key
+  service_plan_id            = azurerm_service_plan.sp_functions.id
 
   identity {
     type = "SystemAssigned"
