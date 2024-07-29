@@ -198,3 +198,11 @@ module "app_service" {
   resource_prefix      = var.resource_prefix
   tenant_id            = data.azurerm_client_config.current.tenant_id
 }
+
+
+module "functions" {
+  source          = "./modules/functions"
+  environment     = var.environment
+  location        = var.location
+  resource_prefix = var.resource_prefix
+}
