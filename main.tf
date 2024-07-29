@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/azuread"
       version = "2.53.1"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.12.0"
+    }
   }
   backend "azurerm" {}
 }
@@ -22,6 +26,8 @@ provider "azurerm" {
 provider "azuread" {
   tenant_id = "fe486d5c-e2e4-4d1d-9af1-9c4f44b434b2"
 }
+
+data "azurerm_client_config" "current" {}
 
 # Core infra
 
@@ -190,4 +196,5 @@ module "app_service" {
   dap_acr_registry_url = module.acr.registry_url
   docker_image         = var.docker_frontend_image
   resource_prefix      = var.resource_prefix
+  tenant_id            = data.azurerm_client_config.current.tenant_id
 }
