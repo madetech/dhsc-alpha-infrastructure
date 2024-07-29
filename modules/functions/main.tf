@@ -51,6 +51,9 @@ resource "azurerm_linux_function_app" "func_app" {
       python_version = "3.11"
     }
   }
+  app_settings = {
+    "MANAGED_IDENTITY_CLIENT_ID" = azurerm_user_assigned_identity.functions_assigned_identity.client_id
+  }
 
 }
 
