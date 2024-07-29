@@ -47,8 +47,11 @@ resource "azurerm_linux_function_app" "func_app" {
   }
 
   site_config {
-
+    application_stack {
+      python_version = "3.11"
+    }
   }
+
 }
 
 resource "azurerm_role_assignment" "func_storage_access" {
