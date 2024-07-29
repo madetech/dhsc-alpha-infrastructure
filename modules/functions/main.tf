@@ -1,7 +1,7 @@
 variable "environment" {}
 variable "location" {}
 variable "resource_prefix" {}
-
+variable "sql_readers_group_id" {}
 
 resource "azurerm_resource_group" "functions_rg" {
   name     = "${var.resource_prefix}-functions-${var.environment}-rg"
@@ -25,6 +25,12 @@ resource "azurerm_service_plan" "sp_functions" {
   sku_name            = "Y1"
 }
 
+resource "azurerm_user_assigned_identity" "functions_assigned_identity" {
+  name                = "${var.resource_prefix}-ai-functions-${var.environment}"
+  resource_group_name = azurerm_resource_group.functions_rg.name
+  location            = azurerm_resource_group.functions_rg.location
+}
+
 resource "azurerm_linux_function_app" "func_app" {
   name                = "${var.resource_prefix}-func-app-${var.environment}"
   resource_group_name = azurerm_resource_group.functions_rg.name
@@ -36,7 +42,8 @@ resource "azurerm_linux_function_app" "func_app" {
   service_plan_id            = azurerm_service_plan.sp_functions.id
 
   identity {
-    type = "SystemAssigned"
+    type         = "SystemAssigned, UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.functions_assigned_identity.id]
   }
 
   site_config {
@@ -50,4 +57,9 @@ resource "azurerm_role_assignment" "func_storage_access" {
   principal_id                     = azurerm_linux_function_app.func_app.identity[0].principal_id
   skip_service_principal_aad_check = false
   depends_on                       = [azurerm_service_plan.sp_functions]
+}
+
+resource "azuread_group_member" "sql_readers_group_member" {
+  group_object_id  = var.sql_readers_group_id
+  member_object_id = azurerm_user_assigned_identity.functions_assigned_identity.id
 }

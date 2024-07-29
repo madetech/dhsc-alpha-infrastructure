@@ -201,8 +201,9 @@ module "app_service" {
 
 
 module "functions" {
-  source          = "./modules/functions"
-  environment     = var.environment
-  location        = var.location
-  resource_prefix = var.resource_prefix
+  source               = "./modules/functions"
+  environment          = var.environment
+  location             = var.location
+  resource_prefix      = var.resource_prefix
+  sql_readers_group_id = azuread_group.sql_reader_group.id
 }
