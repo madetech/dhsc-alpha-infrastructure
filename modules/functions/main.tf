@@ -45,7 +45,7 @@ resource "azurerm_linux_function_app" "func_app" {
 
 resource "azurerm_role_assignment" "func_storage_access" {
   scope                            = azurerm_storage_account.sa_functions.id
-  role_definition_name             = "Storage Blob Data Contributor"
+  role_definition_name             = "Storage Account Contributor"
   principal_id                     = azurerm_linux_function_app.func_app.identity[0].principal_id
   skip_service_principal_aad_check = false
   depends_on                       = [azurerm_service_plan.sp_functions]
