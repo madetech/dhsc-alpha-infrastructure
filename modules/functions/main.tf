@@ -61,5 +61,5 @@ resource "azurerm_role_assignment" "func_storage_access" {
 
 resource "azuread_group_member" "sql_readers_group_member" {
   group_object_id  = var.sql_readers_group_id
-  member_object_id = azurerm_user_assigned_identity.functions_assigned_identity.id
+  member_object_id = azurerm_user_assigned_identity.functions_assigned_identity.principal_id
 }
