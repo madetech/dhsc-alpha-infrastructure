@@ -4,9 +4,8 @@ variable "dap_acr_id" {}
 variable "dap_acr_registry_url" {}
 variable "docker_image" {}
 variable "resource_prefix" {}
-variable "tenant_id" {
-
-}
+variable "tenant_id" {}
+variable "function_app_url" {}
 
 resource "azuread_application_registration" "app_dap_alpha_auth" {
   display_name                       = "${var.resource_prefix}-auth-${var.environment}"
@@ -70,7 +69,8 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     identity_ids = [azurerm_user_assigned_identity.dap_alpha_assigned_identity.id]
   }
   app_settings = {
-    "CONTAINER_PORT" = 8080
+    "CONTAINER_PORT"    = 8080
+    "FUNCTION_BASE_URL" = var.function_app_url
   }
   auth_settings_v2 {
     auth_enabled           = true

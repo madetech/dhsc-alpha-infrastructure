@@ -69,3 +69,7 @@ resource "azuread_group_member" "sql_readers_group_member" {
   group_object_id  = var.sql_readers_group_id
   member_object_id = azurerm_user_assigned_identity.functions_assigned_identity.principal_id
 }
+
+output "function_base_url" {
+  value = azurerm_linux_function_app.func_app.default_hostname
+}

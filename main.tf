@@ -188,6 +188,15 @@ module "acr" {
   environment     = var.environment
 }
 
+module "functions" {
+  source               = "./modules/functions"
+  environment          = var.environment
+  location             = var.location
+  resource_prefix      = var.resource_prefix
+  sql_readers_group_id = azuread_group.sql_reader_group.id
+}
+
+
 module "app_service" {
   source               = "./modules/app-service"
   environment          = var.environment
@@ -197,13 +206,5 @@ module "app_service" {
   docker_image         = var.docker_frontend_image
   resource_prefix      = var.resource_prefix
   tenant_id            = data.azurerm_client_config.current.tenant_id
-}
-
-
-module "functions" {
-  source               = "./modules/functions"
-  environment          = var.environment
-  location             = var.location
-  resource_prefix      = var.resource_prefix
-  sql_readers_group_id = azuread_group.sql_reader_group.id
+  function_app_url     = module.functions.function_base_url
 }
