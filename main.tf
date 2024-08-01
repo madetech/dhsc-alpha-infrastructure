@@ -195,6 +195,15 @@ module "acr" {
   environment     = var.environment
 }
 
+module "functions" {
+  source               = "./modules/functions"
+  environment          = var.environment
+  location             = var.location
+  resource_prefix      = var.resource_prefix
+  sql_readers_group_id = azuread_group.sql_reader_group.id
+}
+
+
 module "app_service" {
   source                                  = "./modules/app-service"
   environment                             = var.environment
@@ -207,4 +216,5 @@ module "app_service" {
   app_registration_id                     = module.authentication.app_registration_id
   service_principal_client_id             = module.authentication.service_principal_client_id
   service_principal_password_display_name = module.authentication.service_principal_password_display_name
+  function_app_url                        = module.functions.function_base_url
 }
