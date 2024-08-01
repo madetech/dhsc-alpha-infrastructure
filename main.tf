@@ -180,6 +180,13 @@ resource "azuread_directory_role_assignment" "sql_server_directory_readers" {
   role_id             = azuread_directory_role.directory_reader.template_id
 }
 
+module "authentication" {
+  source          = "./modules/authentication"
+  environment     = var.environment
+  location        = var.location
+  resource_prefix = var.resource_prefix
+}
+
 module "acr" {
   source          = "./modules/acr"
   acr_rg          = azurerm_resource_group.rg_core.name
@@ -189,12 +196,15 @@ module "acr" {
 }
 
 module "app_service" {
-  source               = "./modules/app-service"
-  environment          = var.environment
-  location             = var.location
-  dap_acr_id           = module.acr.acr_id
-  dap_acr_registry_url = module.acr.registry_url
-  docker_image         = var.docker_frontend_image
-  resource_prefix      = var.resource_prefix
-  tenant_id            = data.azurerm_client_config.current.tenant_id
+  source                                  = "./modules/app-service"
+  environment                             = var.environment
+  location                                = var.location
+  dap_acr_id                              = module.acr.acr_id
+  dap_acr_registry_url                    = module.acr.registry_url
+  docker_image                            = var.docker_frontend_image
+  resource_prefix                         = var.resource_prefix
+  tenant_id                               = data.azurerm_client_config.current.tenant_id
+  app_registration_id                     = module.authentication.app_registration_id
+  service_principal_client_id             = module.authentication.service_principal_client_id
+  service_principal_password_display_name = module.authentication.service_principal_password_display_name
 }
