@@ -2,6 +2,10 @@ variable "environment" {}
 variable "location" {}
 variable "resource_prefix" {}
 variable "sql_readers_group_id" {}
+variable "app_registration_id" {}
+variable "service_principal_password_display_name" {}
+variable "service_principal_client_id" {}
+variable "tenant_id" {}
 
 resource "azurerm_resource_group" "functions_rg" {
   name     = "${var.resource_prefix}-functions-${var.environment}-rg"
@@ -53,6 +57,19 @@ resource "azurerm_linux_function_app" "func_app" {
   }
   app_settings = {
     "MANAGED_IDENTITY_CLIENT_ID" = azurerm_user_assigned_identity.functions_assigned_identity.client_id
+  }
+  auth_settings_v2 {
+    auth_enabled           = true
+    require_authentication = true
+    default_provider       = "azureactivedirectory"
+    active_directory_v2 {
+      client_id                  = var.service_principal_client_id
+      tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
+      client_secret_setting_name = var.service_principal_password_display_name
+    }
+    login {
+      token_store_enabled = true
+    }
   }
 
 }
