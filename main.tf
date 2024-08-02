@@ -180,13 +180,6 @@ resource "azuread_directory_role_assignment" "sql_server_directory_readers" {
   role_id             = azuread_directory_role.directory_reader.template_id
 }
 
-module "authentication" {
-  source          = "./modules/authentication"
-  environment     = var.environment
-  location        = var.location
-  resource_prefix = var.resource_prefix
-}
-
 module "acr" {
   source          = "./modules/acr"
   acr_rg          = azurerm_resource_group.rg_core.name
@@ -196,51 +189,45 @@ module "acr" {
 }
 
 module "functions" {
-  source                                  = "./modules/functions"
-  environment                             = var.environment
-  location                                = var.location
-  resource_prefix                         = var.resource_prefix
-  sql_readers_group_id                    = azuread_group.sql_reader_group.id
-  app_registration_id                     = module.authentication.app_registration_id
-  service_principal_client_id             = module.authentication.service_principal_client_id
-  service_principal_password_display_name = module.authentication.service_principal_password_display_name
-  tenant_id                               = data.azurerm_client_config.current.tenant_id
+  source               = "./modules/functions"
+  environment          = var.environment
+  location             = var.location
+  resource_prefix      = var.resource_prefix
+  sql_readers_group_id = azuread_group.sql_reader_group.id
+  tenant_id            = data.azurerm_client_config.current.tenant_id
 }
 
 
 module "app_service" {
-  source                                  = "./modules/app-service"
-  environment                             = var.environment
-  location                                = var.location
-  dap_acr_id                              = module.acr.acr_id
-  dap_acr_registry_url                    = module.acr.registry_url
-  docker_image                            = var.docker_frontend_image
-  resource_prefix                         = var.resource_prefix
-  tenant_id                               = data.azurerm_client_config.current.tenant_id
-  app_registration_id                     = module.authentication.app_registration_id
-  service_principal_client_id             = module.authentication.service_principal_client_id
-  service_principal_password_display_name = module.authentication.service_principal_password_display_name
-  function_app_url                        = module.functions.function_base_url
+  source               = "./modules/app-service"
+  environment          = var.environment
+  location             = var.location
+  dap_acr_id           = module.acr.acr_id
+  dap_acr_registry_url = module.acr.registry_url
+  docker_image         = var.docker_frontend_image
+  resource_prefix      = var.resource_prefix
+  tenant_id            = data.azurerm_client_config.current.tenant_id
+  function_app_url     = module.functions.function_base_url
 }
 
 moved {
-  from = module.app_service.azuread_application_registration.app_dap_alpha_auth
-  to   = module.authentication.azuread_application_registration.app_dap_alpha_auth
+  from = module.authentication.azuread_application_registration.app_dap_alpha_auth
+  to   = module.app_service.azuread_application_registration.app_dap_alpha_auth
 }
 
 moved {
-  from = module.app_service.azuread_service_principal.sp_dap_alpha_auth
-  to   = module.authentication.azuread_service_principal.sp_dap_alpha_auth
+  from = module.authentication.azuread_service_principal.sp_dap_alpha_auth
+  to   = module.app_service.azuread_service_principal.sp_dap_alpha_auth
 }
 moved {
-  from = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secre
-  to   = module.authentication.azuread_service_principal_password.sp_dap_alpha_auth_secre
+  from = module.authentication.azuread_service_principal_password.sp_dap_alpha_auth_secre
+  to   = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secre
 }
 moved {
-  from = module.app_service.time_rotating.sp_dap_alpha_auth_rotation
-  to   = module.authentication.time_rotating.sp_dap_alpha_auth_rotation
+  from = module.authentication.time_rotating.sp_dap_alpha_auth_rotation
+  to   = module.app_service.time_rotating.sp_dap_alpha_auth_rotation
 }
 moved {
-  from = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secret
-  to   = module.authentication.azuread_service_principal_password.sp_dap_alpha_auth_secret
+  from = module.authentication.azuread_service_principal_password.sp_dap_alpha_auth_secret
+  to   = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secret
 }

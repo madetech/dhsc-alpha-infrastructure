@@ -2,11 +2,33 @@ variable "environment" {}
 variable "location" {}
 variable "resource_prefix" {}
 variable "sql_readers_group_id" {}
-variable "app_registration_id" {}
-variable "service_principal_password_display_name" {}
-variable "service_principal_client_id" {}
 variable "tenant_id" {}
 
+# App registration for authentication
+resource "azuread_application_registration" "func_dap_alpha_auth" {
+  display_name                       = "${var.resource_prefix}-auth-${var.environment}"
+  implicit_id_token_issuance_enabled = true
+  requested_access_token_version     = 2
+}
+
+resource "azuread_service_principal" "sp_dap_func_auth" {
+  client_id = azuread_application_registration.func_dap_alpha_auth.client_id
+}
+
+resource "time_rotating" "sp_dap_func_auth_rotation" {
+  rotation_days = 30
+}
+
+resource "azuread_service_principal_password" "sp_dap_func_auth_secret" {
+  service_principal_id = azuread_service_principal.sp_dap_func_auth.object_id
+  display_name         = "${var.resource_prefix}-auth-secret-${var.environment}"
+  rotate_when_changed = {
+    rotation = time_rotating.sp_dap_func_auth_rotation.id
+  }
+}
+
+
+# Functions resources
 resource "azurerm_resource_group" "functions_rg" {
   name     = "${var.resource_prefix}-functions-${var.environment}-rg"
   location = var.location
@@ -63,9 +85,9 @@ resource "azurerm_linux_function_app" "func_app" {
     require_authentication = true
     default_provider       = "azureactivedirectory"
     active_directory_v2 {
-      client_id                  = var.service_principal_client_id
+      client_id                  = azuread_service_principal.sp_dap_func_auth.client_id
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
-      client_secret_setting_name = var.service_principal_password_display_name
+      client_secret_setting_name = azuread_service_principal_password.sp_dap_func_auth_secret.display_name
     }
     login {
       token_store_enabled = true
@@ -73,6 +95,15 @@ resource "azurerm_linux_function_app" "func_app" {
   }
 
 }
+
+resource "azuread_application_redirect_uris" "func_dap_alpha_auth_redirect_uris" {
+  application_id = azuread_application_registration.func_dap_alpha_auth.id
+  type           = "Web"
+  redirect_uris = [
+    "https://${azurerm_linux_function_app.func_app.default_hostname}/.auth/login/aad/callback"
+  ]
+}
+
 
 resource "azurerm_role_assignment" "func_storage_access" {
   scope                            = azurerm_storage_account.sa_functions.id
@@ -90,3 +121,5 @@ resource "azuread_group_member" "sql_readers_group_member" {
 output "function_base_url" {
   value = azurerm_linux_function_app.func_app.default_hostname
 }
+
+
