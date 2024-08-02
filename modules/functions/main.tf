@@ -6,7 +6,7 @@ variable "tenant_id" {}
 
 # App registration for authentication
 resource "azuread_application_registration" "func_dap_alpha_auth" {
-  display_name                       = "${var.resource_prefix}-auth-${var.environment}"
+  display_name                       = "${var.resource_prefix}-funcauth-${var.environment}"
   implicit_id_token_issuance_enabled = true
   requested_access_token_version     = 2
 }
@@ -21,7 +21,7 @@ resource "time_rotating" "sp_dap_func_auth_rotation" {
 
 resource "azuread_service_principal_password" "sp_dap_func_auth_secret" {
   service_principal_id = azuread_service_principal.sp_dap_func_auth.object_id
-  display_name         = "${var.resource_prefix}-auth-secret-${var.environment}"
+  display_name         = "${var.resource_prefix}-funcauth-secret-${var.environment}"
   rotate_when_changed = {
     rotation = time_rotating.sp_dap_func_auth_rotation.id
   }
