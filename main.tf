@@ -208,6 +208,7 @@ module "app_service" {
   resource_prefix      = var.resource_prefix
   tenant_id            = data.azurerm_client_config.current.tenant_id
   function_app_url     = module.functions.function_base_url
+  func_app_reg_obj_id  = module.functions.app_reg_obj_id
 }
 
 moved {

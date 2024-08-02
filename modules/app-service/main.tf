@@ -6,6 +6,7 @@ variable "docker_image" {}
 variable "resource_prefix" {}
 variable "tenant_id" {}
 variable "function_app_url" {}
+variable "func_app_reg_obj_id" {}
 
 # App registration for authentication
 resource "azuread_application_registration" "app_dap_alpha_auth" {
@@ -28,6 +29,12 @@ resource "azuread_service_principal_password" "sp_dap_alpha_auth_secret" {
   rotate_when_changed = {
     rotation = time_rotating.sp_dap_alpha_auth_rotation.id
   }
+}
+
+resource "azuread_service_principal_delegated_permission_grant" "app_auth_func_perm" {
+  service_principal_object_id          = azuread_application_registration.app_dap_alpha_auth.object_id
+  resource_service_principal_object_id = var.func_app_reg_obj_id
+  claim_values                         = ["user_impersonation"]
 }
 
 # App service resources

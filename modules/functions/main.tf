@@ -122,4 +122,6 @@ output "function_base_url" {
   value = azurerm_linux_function_app.func_app.default_hostname
 }
 
-
+output "app_reg_obj_id" {
+  value = azuread_application_registration.func_dap_alpha_auth.object_id
+}
