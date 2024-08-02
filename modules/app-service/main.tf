@@ -7,6 +7,7 @@ variable "resource_prefix" {}
 variable "tenant_id" {}
 variable "function_app_url" {}
 variable "func_sp_obj_id" {}
+variable "func_sp_client_id" {}
 
 # App registration for authentication
 resource "azuread_application_registration" "app_dap_alpha_auth" {
@@ -87,6 +88,9 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
       client_id                  = azuread_service_principal.sp_dap_alpha_auth.client_id
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
       client_secret_setting_name = azuread_service_principal_password.sp_dap_alpha_auth_secret.display_name
+      login_parameters = {
+        "scope" = "openid offline_access api://${var.func_sp_client_id}/user_impersonation"
+      }
     }
     login {
       token_store_enabled = true

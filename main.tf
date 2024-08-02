@@ -209,6 +209,7 @@ module "app_service" {
   tenant_id            = data.azurerm_client_config.current.tenant_id
   function_app_url     = module.functions.function_base_url
   func_sp_obj_id       = module.functions.sp_object_id
+  func_sp_client_id    = module.functions.sp_client_id
 }
 
 moved {

@@ -125,3 +125,7 @@ output "function_base_url" {
 output "sp_object_id" {
   value = azuread_service_principal.sp_dap_func_auth.object_id
 }
+
+output "sp_client_id" {
+  value = azuread_service_principal.sp_dap_func_auth.client_id
+}
