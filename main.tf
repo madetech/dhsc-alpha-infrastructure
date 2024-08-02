@@ -204,6 +204,7 @@ module "functions" {
   function_sp_client_id           = module.app_registrations.function_sp_client_id
   function_sp_secret_display_name = module.app_registrations.function_sp_secret_display_name
   app_registration_function_id    = module.app_registrations.app_registration_function_id
+  app_registration_app_client_id  = module.app_registrations.app_registration_app_client_id
 }
 
 

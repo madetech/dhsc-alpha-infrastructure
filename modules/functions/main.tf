@@ -6,6 +6,7 @@ variable "tenant_id" {}
 variable "function_sp_client_id" {}
 variable "function_sp_secret_display_name" {}
 variable "app_registration_function_id" {}
+variable "app_registration_app_client_id" {}
 
 
 # Functions resources
@@ -65,9 +66,11 @@ resource "azurerm_linux_function_app" "func_app" {
     require_authentication = true
     default_provider       = "azureactivedirectory"
     active_directory_v2 {
-      client_id                  = var.function_sp_client_id
-      tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
-      client_secret_setting_name = var.function_sp_secret_display_name
+      client_id                       = var.function_sp_client_id
+      tenant_auth_endpoint            = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
+      client_secret_setting_name      = var.function_sp_secret_display_name
+      allowed_applications            = [var.app_registration_app_client_id]
+      jwt_allowed_client_applications = [var.app_registration_app_client_id]
     }
     login {
       token_store_enabled = true
