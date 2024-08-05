@@ -10,6 +10,7 @@ variable "app_sp_client_id" {}
 variable "app_sp_secret_display_name" {}
 variable "function_sp_client_id" {}
 variable "app_registration_app_id" {}
+variable "app_registration_function_app_id" {}
 
 # App service resources
 resource "azurerm_resource_group" "frontend_rg" {
@@ -62,7 +63,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
       client_secret_setting_name = var.app_sp_secret_display_name
       login_parameters = {
-        "scope" = "openid offline_access api://${var.function_sp_client_id}/user_impersonation"
+        "scope" = "openid offline_access api://${var.app_registration_function_app_id}/user_impersonation"
       }
     }
     login {

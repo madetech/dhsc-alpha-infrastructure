@@ -87,3 +87,6 @@ output "app_registration_function_id" {
 output "app_registration_app_client_id" {
   value = azuread_application_registration.app_auth.client_id
 }
+output "app_registration_function_app_id" {
+  value = azuread_application_registration.function_auth.client_id
+}

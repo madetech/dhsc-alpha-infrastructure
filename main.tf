@@ -209,19 +209,20 @@ module "functions" {
 
 
 module "app_service" {
-  source                     = "./modules/app-service"
-  environment                = var.environment
-  location                   = var.location
-  dap_acr_id                 = module.acr.acr_id
-  dap_acr_registry_url       = module.acr.registry_url
-  docker_image               = var.docker_frontend_image
-  resource_prefix            = var.resource_prefix
-  tenant_id                  = data.azurerm_client_config.current.tenant_id
-  function_app_url           = module.functions.function_base_url
-  app_sp_client_id           = module.app_registrations.app_sp_client_id
-  app_sp_secret_display_name = module.app_registrations.app_sp_secret_display_name
-  function_sp_client_id      = module.app_registrations.function_sp_client_id
-  app_registration_app_id    = module.app_registrations.app_registration_app_id
+  source                           = "./modules/app-service"
+  environment                      = var.environment
+  location                         = var.location
+  dap_acr_id                       = module.acr.acr_id
+  dap_acr_registry_url             = module.acr.registry_url
+  docker_image                     = var.docker_frontend_image
+  resource_prefix                  = var.resource_prefix
+  tenant_id                        = data.azurerm_client_config.current.tenant_id
+  function_app_url                 = module.functions.function_base_url
+  app_sp_client_id                 = module.app_registrations.app_sp_client_id
+  app_sp_secret_display_name       = module.app_registrations.app_sp_secret_display_name
+  function_sp_client_id            = module.app_registrations.function_sp_client_id
+  app_registration_app_id          = module.app_registrations.app_registration_app_id
+  app_registration_function_app_id = module.app_registrations.app_registration_function_app_id
 }
 
 moved {

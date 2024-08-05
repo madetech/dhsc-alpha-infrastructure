@@ -75,6 +75,7 @@ resource "azurerm_linux_function_app" "func_app" {
       client_secret_setting_name      = var.function_sp_secret_display_name
       allowed_applications            = [var.app_registration_app_client_id]
       jwt_allowed_client_applications = [var.app_registration_app_client_id]
+      allowed_audiences               = [var.app_registration_app_client_id]
     }
     login {
       token_store_enabled = true
