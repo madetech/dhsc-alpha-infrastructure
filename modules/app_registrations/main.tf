@@ -60,6 +60,12 @@ resource "azuread_service_principal_delegated_permission_grant" "app_auth_functi
   claim_values                         = ["user_impersonation"]
 }
 
+resource "azuread_service_principal_delegated_permission_grant" "function_auth_app" {
+  service_principal_object_id          = azuread_service_principal.function_auth.object_id
+  resource_service_principal_object_id = azuread_service_principal.app_auth.object_id
+  claim_values                         = ["user_impersonation"]
+}
+
 output "function_sp_client_id" {
   value = azuread_service_principal.function_auth.client_id
 }
