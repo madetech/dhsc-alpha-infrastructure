@@ -24,6 +24,11 @@ resource "azuread_service_principal_password" "function_auth" {
   }
 }
 
+resource "azuread_application_identifier_uri" "function_api_uri" {
+  application_id = azuread_application_registration.function_auth.id
+  identifier_uri = "api://${azuread_application_registration.function_auth.client_id}"
+}
+
 # App registration for app service authentication
 
 resource "azuread_application_registration" "app_auth" {
