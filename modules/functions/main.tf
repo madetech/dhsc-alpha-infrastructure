@@ -57,6 +57,10 @@ resource "azurerm_linux_function_app" "func_app" {
     application_stack {
       python_version = "3.11"
     }
+    cors {
+      allowed_origins     = ["https://${var.resource_prefix}-${var.environment}-app.azurewebsites.net"]
+      support_credentials = true
+    }
   }
   app_settings = {
     "MANAGED_IDENTITY_CLIENT_ID" = azurerm_user_assigned_identity.functions_assigned_identity.client_id
