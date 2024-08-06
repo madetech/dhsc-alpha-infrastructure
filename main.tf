@@ -119,6 +119,7 @@ resource "azurerm_data_factory" "adf_data" {
   identity {
     type = "SystemAssigned"
   }
+  managed_virtual_network_enabled = true
 }
 
 # Create MS SQL database for data rg - nwldatasql
