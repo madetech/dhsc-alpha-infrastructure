@@ -6,30 +6,13 @@ variable "docker_image" {}
 variable "resource_prefix" {}
 variable "tenant_id" {}
 variable "function_app_url" {}
+variable "app_sp_client_id" {}
+variable "app_sp_secret_display_name" {}
+variable "function_sp_client_id" {}
+variable "app_registration_app_id" {}
+variable "app_registration_function_app_id" {}
 
-resource "azuread_application_registration" "app_dap_alpha_auth" {
-  display_name                       = "${var.resource_prefix}-auth-${var.environment}"
-  implicit_id_token_issuance_enabled = true
-  requested_access_token_version     = 2
-}
-
-resource "azuread_service_principal" "sp_dap_alpha_auth" {
-  client_id = azuread_application_registration.app_dap_alpha_auth.client_id
-}
-
-resource "time_rotating" "sp_dap_alpha_auth_rotation" {
-  rotation_days = 30
-}
-
-resource "azuread_service_principal_password" "sp_dap_alpha_auth_secret" {
-  service_principal_id = azuread_service_principal.sp_dap_alpha_auth.object_id
-  display_name         = "${var.resource_prefix}-auth-secret-${var.environment}"
-  rotate_when_changed = {
-    rotation = time_rotating.sp_dap_alpha_auth_rotation.id
-  }
-}
-
-
+# App service resources
 resource "azurerm_resource_group" "frontend_rg" {
   name     = "${var.resource_prefix}-${var.environment}-rg"
   location = var.location
@@ -48,7 +31,6 @@ resource "azurerm_service_plan" "dap_alpha_service_plan" {
   sku_name            = "B2"
 }
 
-#https://devarea-openaigpt4-frontend.bluemeadow-03ae48b4.uksouth.azurecontainerapps.io/.auth/login/aad/callback
 
 resource "azurerm_linux_web_app" "dap-alpha-app" {
   name                = "${var.resource_prefix}-${var.environment}-app"
@@ -77,9 +59,12 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
     require_authentication = true
     default_provider       = "azureactivedirectory"
     active_directory_v2 {
-      client_id                  = azuread_service_principal.sp_dap_alpha_auth.client_id
+      client_id                  = var.app_sp_client_id
       tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0/"
-      client_secret_setting_name = azuread_service_principal_password.sp_dap_alpha_auth_secret.display_name
+      client_secret_setting_name = var.app_sp_secret_display_name
+      login_parameters = {
+        "scope" = "openid offline_access api://${var.app_registration_function_app_id}/user_impersonation"
+      }
     }
     login {
       token_store_enabled = true
@@ -88,7 +73,7 @@ resource "azurerm_linux_web_app" "dap-alpha-app" {
 }
 
 resource "azuread_application_redirect_uris" "app_dap_alpha_auth_redirect_uris" {
-  application_id = azuread_application_registration.app_dap_alpha_auth.id
+  application_id = var.app_registration_app_id
   type           = "Web"
   redirect_uris = [
     "https://${azurerm_linux_web_app.dap-alpha-app.default_hostname}/.auth/login/aad/callback"
