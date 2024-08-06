@@ -226,6 +226,15 @@ module "app_service" {
   app_registration_function_app_id = module.app_registrations.app_registration_function_app_id
 }
 
+module "key_vault" {
+  source              = "./modules/key_vault"
+  environment         = var.environment
+  resource_prefix     = var.resource_prefix
+  resource_group_name = azurerm_resource_group.rg_core.name
+  location            = var.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+}
+
 moved {
   from = module.app_service.azuread_application_registration.app_dap_alpha_auth
   to   = module.app_registrations.azuread_application_registration.app_auth
