@@ -64,6 +64,7 @@ resource "azurerm_linux_function_app" "func_app" {
   }
   app_settings = {
     "MANAGED_IDENTITY_CLIENT_ID" = azurerm_user_assigned_identity.functions_assigned_identity.client_id
+    "ENVIRONMENT"                = var.environment
   }
   auth_settings_v2 {
     auth_enabled           = true
