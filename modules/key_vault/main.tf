@@ -21,12 +21,13 @@ resource "azuread_group_member" "adf_secret_read" {
 }
 
 resource "azurerm_key_vault" "key_vault" {
-  name                     = "${var.resource_prefix}-kv-${var.environment}"
-  location                 = var.location
-  resource_group_name      = var.resource_group_name
-  tenant_id                = var.tenant_id
-  sku_name                 = "standard"
-  purge_protection_enabled = false
+  name                      = "${var.resource_prefix}-kv-${var.environment}"
+  location                  = var.location
+  resource_group_name       = var.resource_group_name
+  tenant_id                 = var.tenant_id
+  sku_name                  = "standard"
+  purge_protection_enabled  = false
+  enable_rbac_authorization = true
 }
 
 
