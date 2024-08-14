@@ -16,7 +16,7 @@ resource "azuread_group" "kv_admins" {
 }
 
 resource "azuread_group_member" "adf_secret_read" {
-  group_object_id  = azurerm_key_vault_access_policy.secret_readers.object_id
+  group_object_id  = azuread_group.secret_readers.object_id
   member_object_id = var.adf_object_id
 }
 
@@ -30,34 +30,14 @@ resource "azurerm_key_vault" "key_vault" {
 }
 
 
-resource "azurerm_key_vault_access_policy" "kv_admins" {
-  key_vault_id = azurerm_key_vault.key_vault.id
-  tenant_id    = var.tenant_id
-  object_id    = azuread_group.kv_admins.object_id
-  certificate_permissions = [
-    "Backup", "Create", "Delete", "DeleteIssuers", "Get", "GetIssuers",
-    "Import", "List", "ListIssuers", "ManageContacts", "ManageIssuers",
-    "Purge", "Recover", "Restore", "SetIssuers", "Update"
-  ]
-  key_permissions = [
-    "Backup", "Create", "Decrypt", "Delete", "Encrypt", "Get", "Import",
-    "List", "Purge", "Recover", "Restore", "Sign", "UnwrapKey", "Update",
-    "Verify", "WrapKey", "Release", "Rotate", "GetRotationPolicy", "SetRotationPolicy"
-  ]
-  secret_permissions = [
-    "Backup", "Delete", "Get", "List", "Purge", "Recover", "Restore", "Set"
-  ]
-  storage_permissions = [
-    "Backup", "Delete", "DeleteSAS", "Get", "GetSAS", "List", "ListSAS", "Purge",
-    "Recover", "RegenerateKey", "Restore", "Set", "SetSAS", "Update"
-  ]
+resource "azurerm_role_assignment" "kv_admins" {
+  scope                = azurerm_key_vault.key_vault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = azuread_group.kv_admins.object_id
 }
 
-resource "azurerm_key_vault_access_policy" "secret_readers" {
-  key_vault_id = azurerm_key_vault.key_vault.id
-  tenant_id    = var.tenant_id
-  object_id    = azuread_group.secret_readers.object_id
-  secret_permissions = [
-    "Get", "List"
-  ]
+resource "azurerm_role_assignment" "kv_secret_readers" {
+  scope                = azurerm_key_vault.key_vault.id
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azuread_group.secret_readers.object_id
 }
