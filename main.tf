@@ -226,45 +226,13 @@ module "app_service" {
   app_registration_function_app_id = module.app_registrations.app_registration_function_app_id
 }
 
-moved {
-  from = module.app_service.azuread_application_registration.app_dap_alpha_auth
-  to   = module.app_registrations.azuread_application_registration.app_auth
+module "key_vault" {
+  source              = "./modules/key_vault"
+  environment         = var.environment
+  resource_prefix     = var.resource_prefix
+  resource_group_name = azurerm_resource_group.rg_core.name
+  location            = var.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  adf_object_id       = azurerm_data_factory.adf_data.identity[0].principal_id
 }
 
-moved {
-  from = module.app_service.azuread_service_principal.sp_dap_alpha_auth
-  to   = module.app_registrations.azuread_service_principal.app_auth
-}
-moved {
-  from = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secret
-  to   = module.app_registrations.azuread_service_principal_password.app_auth
-}
-moved {
-  from = module.app_service.time_rotating.sp_dap_alpha_auth_rotation
-  to   = module.app_registrations.time_rotating.sp_app_auth_rotation
-}
-moved {
-  from = module.app_service.azuread_service_principal_password.sp_dap_alpha_auth_secret
-  to   = module.app_registrations.azuread_service_principal_password.app_auth
-}
-moved {
-  from = module.functions.time_rotating.sp_dap_func_auth_rotation
-  to   = module.app_registrations.time_rotating.sp_function_auth_rotation
-}
-
-moved {
-  from = module.functions.azuread_service_principal_password.sp_dap_func_auth_secret
-  to   = module.app_registrations.azuread_service_principal_password.function_auth
-}
-moved {
-  from = module.functions.azuread_service_principal.sp_dap_func_auth
-  to   = module.app_registrations.azuread_service_principal.function_auth
-}
-moved {
-  from = module.functions.azuread_application_registration.func_dap_alpha_auth
-  to   = module.app_registrations.azuread_application_registration.function_auth
-}
-moved {
-  from = module.app_service.azuread_service_principal_delegated_permission_grant.app_auth_func_perm
-  to   = module.app_registrations.azuread_service_principal_delegated_permission_grant.app_auth_function
-}
