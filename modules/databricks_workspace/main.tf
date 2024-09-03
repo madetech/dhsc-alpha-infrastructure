@@ -10,7 +10,7 @@ resource "azurerm_databricks_workspace" "dbx_workspace" {
   location                    = var.location
   sku                         = "premium"
   custom_parameters {
-    storage_account_name = "${var.resource_prefix}dbxdatadbfs1${var.environment}"
+    storage_account_name = "${var.resource_prefix}dbxdatadbfs${var.environment}"
   }
 }
 
