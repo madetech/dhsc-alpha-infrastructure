@@ -240,10 +240,20 @@ module "key_vault" {
   adf_object_id       = azurerm_data_factory.adf_data.identity[0].principal_id
 }
 
-module "databricks" {
-  source              = "./modules/databricks"
+module "databricks_workspace" {
+  source              = "./modules/databricks_workspace"
   environment         = var.environment
   resource_prefix     = var.resource_prefix
   resource_group_name = azurerm_resource_group.rg_data.name
   location            = azurerm_resource_group.rg_data.location
+}
+
+module "databricks_cluster" {
+  source              = "./modules/databricks"
+  environment         = var.environment
+  resource_prefix     = var.resource_prefix
+  resource_group_name = azurerm_resource_group.rg_data.name
+  storage_account_name= azurerm_storage_account.sc_datalake.name
+  workspace_url       = module.databricks_workspace.workspace_url
+  string_value        = azurerm_storage_account.sc_datalake.primary_access_key
 }
