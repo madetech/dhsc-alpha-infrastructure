@@ -14,15 +14,22 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  skip_provider_registration = true
+  features {
+  }
+}
+
+
 provider "databricks" {
   host = var.workspace_url
 }
 
 data "databricks_spark_version" "latest_lts" {
   long_term_support = true
-  
+
   depends_on = [
-  var.workspace_url
+    var.workspace_url
   ]
 }
 
