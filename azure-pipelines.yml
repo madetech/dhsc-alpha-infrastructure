@@ -35,7 +35,7 @@ stages:
           azureSubscription: '${{environment.arm_connection}}'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
-          inlineScript: 'az login'
+          inlineScript: 'az account show'
       - task: TerraformInstaller@1
         inputs:
           terraformVersion: 'latest'
@@ -72,7 +72,7 @@ stages:
           azureSubscription: '${{environment.arm_connection}}'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
-          inlineScript: 'az login'
+          inlineScript: 'az account show'
       - task: TerraformInstaller@1
         inputs:
           terraformVersion: 'latest'
