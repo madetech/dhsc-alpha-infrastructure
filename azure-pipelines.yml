@@ -30,6 +30,12 @@ stages:
     jobs:
     - job: Plan
       steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: '${{environment.arm_connection}}'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'az login'
       - task: TerraformInstaller@1
         inputs:
           terraformVersion: 'latest'
