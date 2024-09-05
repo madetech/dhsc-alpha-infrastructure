@@ -54,7 +54,7 @@ stages:
         inputs:
           provider: 'azurerm'
           command: 'plan'
-          commandOptions: '-out main.tfout -var="environment=${{environment.name}}"'
+          commandOptions: '-out main.tfout -var="environment=${{environment.name}}" -var="azure_msi_flag=true"'
           environmentServiceNameAzureRM: '${{environment.arm_connection}}'
       - task: PublishPipelineArtifact@1
         inputs:
