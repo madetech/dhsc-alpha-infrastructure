@@ -35,7 +35,10 @@ stages:
           azureSubscription: '${{environment.arm_connection}}'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
-          inlineScript: 'az account show'
+          inlineScript: |
+            echo $(SpId)
+            echo $(SpKey)
+            echo $(TenantId)
           addSpnToEnvironment: true
       - task: TerraformInstaller@1
         inputs:
