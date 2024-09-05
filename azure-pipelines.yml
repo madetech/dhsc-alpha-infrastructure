@@ -36,9 +36,9 @@ stages:
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            echo $SpId
-            echo $SpKey
-            echo $TenantId
+            echo $servicePrincipalId
+            echo $servicePrincipalKey
+            echo $tenantId 
           addSpnToEnvironment: true
       - task: TerraformInstaller@1
         inputs:
