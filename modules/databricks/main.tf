@@ -4,6 +4,8 @@ variable "resource_group_name" {}
 variable "workspace_url" {}
 variable "storage_account_name" {}
 variable "string_value" {}
+variable "azure_msi_flag" {}
+variable "workspace_id" {}
 
 terraform {
   required_providers {
@@ -14,15 +16,11 @@ terraform {
   }
 }
 
-provider "azurerm" {
-  skip_provider_registration = true
-  features {
-  }
-}
-
 
 provider "databricks" {
-  host = var.workspace_url
+  host                        = var.workspace_url
+  azure_workspace_resource_id = var.workspace_id
+  azure_use_msi               = var.azure_msi_flag
 }
 
 data "databricks_spark_version" "latest_lts" {

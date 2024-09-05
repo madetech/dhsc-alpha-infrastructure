@@ -249,11 +249,14 @@ module "databricks_workspace" {
 }
 
 module "databricks_cluster" {
-  source              = "./modules/databricks"
-  environment         = var.environment
-  resource_prefix     = var.resource_prefix
-  resource_group_name = azurerm_resource_group.rg_data.name
-  storage_account_name= azurerm_storage_account.sc_datalake.name
-  workspace_url       = module.databricks_workspace.workspace_url
-  string_value        = azurerm_storage_account.sc_datalake.primary_access_key
+  source               = "./modules/databricks"
+  environment          = var.environment
+  resource_prefix      = var.resource_prefix
+  resource_group_name  = azurerm_resource_group.rg_data.name
+  storage_account_name = azurerm_storage_account.sc_datalake.name
+  workspace_url        = module.databricks_workspace.workspace_url
+  string_value         = azurerm_storage_account.sc_datalake.primary_access_key
+  azure_msi_flag       = var.azure_msi_flag
+  workspace_id         = module.databricks_workspace.workspace_id
+
 }

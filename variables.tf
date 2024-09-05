@@ -11,13 +11,18 @@ variable "environment" {
 }
 
 variable "location" {
-  type = string
+  type        = string
   description = "Azure deployment Region"
-  default = "UK South"
+  default     = "UK South"
 }
 
 variable "docker_frontend_image" {
-  type = string
+  type        = string
   description = "Name of the frontend docker image"
-  default = "dapalpha"
+  default     = "dapalpha"
+}
+
+variable "azure_msi_flag" {
+  type    = bool
+  default = false
 }
