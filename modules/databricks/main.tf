@@ -60,3 +60,7 @@ resource "databricks_cluster" "dbx_cluster" {
     "ENV" = var.environment
   }
 }
+
+resource "databricks_directory" "workbooks" {
+  path = "/pipeline_notebooks"
+}
