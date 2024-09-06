@@ -2,6 +2,7 @@ variable "environment" {}
 variable "resource_prefix" {}
 variable "resource_group_name" {}
 variable "location" {}
+variable "data_factory_identity_id" {}
 
 # Create databricks workspace 
 resource "azurerm_databricks_workspace" "dbx_workspace" {
@@ -13,6 +14,13 @@ resource "azurerm_databricks_workspace" "dbx_workspace" {
     storage_account_name = "${var.resource_prefix}dbxdatadbfs${var.environment}"
   }
 }
+
+resource "azurerm_role_assignment" "af_dbx_access" {
+  scope                = azurerm_databricks_workspace.dbx_workspace.id
+  role_definition_name = "Contributor"
+  principal_id         = var.data_factory_identity_id
+}
+
 
 output "workspace_url" {
   value = azurerm_databricks_workspace.dbx_workspace.workspace_url

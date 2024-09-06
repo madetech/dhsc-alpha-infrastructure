@@ -47,7 +47,7 @@ resource "databricks_cluster" "dbx_cluster" {
   node_type_id            = "Standard_DS3_v2"
   driver_node_type_id     = "Standard_DS3_v2"
   enable_elastic_disk     = true
-  autotermination_minutes = 10
+  autotermination_minutes = 60
   autoscale {
     min_workers = 1
     max_workers = 2
