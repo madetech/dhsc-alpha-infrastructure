@@ -146,8 +146,12 @@ resource "azurerm_mssql_server" "data_sql" {
 resource "azurerm_mssql_database" "data_db_sql" {
   name           = "Analytical_Datastore"
   server_id      = azurerm_mssql_server.data_sql.id
-  sku_name       = "Basic"
+  sku_name       = "S0"
   zone_redundant = false
+  max_size_gb    = 250
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "azurerm_mssql_firewall_rule" "sql_internalazure" {
