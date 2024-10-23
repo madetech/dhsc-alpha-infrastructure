@@ -105,94 +105,6 @@ resource "azurerm_storage_container" "sc_datalake_reporting_container" {
   storage_account_name = azurerm_storage_account.sc_datalake.name
 }
 
-# Create drop storage account
-resource "azurerm_storage_account" "drop_datalake" {
-  name                     = "${var.resource_prefix}stdrop${var.environment}"
-  resource_group_name      = azurerm_resource_group.rg_data.name
-  location                 = azurerm_resource_group.rg_data.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  is_hns_enabled           = true # This enables DataLake Gen2.
-  allow_nested_items_to_be_public = false
-}
-
-# Create containers for the drop storage account 
-resource "azurerm_storage_container" "datalake_drop_restricted" {
-  name                 = "restricted"
-  storage_account_name = azurerm_storage_account.drop_datalake.name
-}
-
-resource "azurerm_storage_container" "datalake_drop_unrestricted" {
-  name                 = "unrestricted"
-  storage_account_name = azurerm_storage_account.drop_datalake.name
-}
-
-# Create bronze storage account
-resource "azurerm_storage_account" "bronze_datalake" {
-  name                     = "${var.resource_prefix}stbronze${var.environment}"
-  resource_group_name      = azurerm_resource_group.rg_data.name
-  location                 = azurerm_resource_group.rg_data.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  is_hns_enabled           = true # This enables DataLake Gen2.
-  allow_nested_items_to_be_public = false
-}
-
-# Create containers for the bronze storage account
-resource "azurerm_storage_container" "datalake_bronze_restricted" {
-  name                 = "restricted"
-  storage_account_name = azurerm_storage_account.bronze_datalake.name
-}
-
-resource "azurerm_storage_container" "datalake_bronze_unrestricted" {
-  name                 = "unrestricted"
-  storage_account_name = azurerm_storage_account.bronze_datalake.name
-}
-
-# Create silver storage account
-resource "azurerm_storage_account" "silver_datalake" {
-  name                     = "${var.resource_prefix}stsilver${var.environment}"
-  resource_group_name      = azurerm_resource_group.rg_data.name
-  location                 = azurerm_resource_group.rg_data.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  is_hns_enabled           = true # This enables DataLake Gen2.
-  allow_nested_items_to_be_public = false
-}
-
-# Create containers for the silver storage account
-resource "azurerm_storage_container" "datalake_silver_restricted" {
-  name                 = "restricted"
-  storage_account_name = azurerm_storage_account.silver_datalake.name
-}
-
-resource "azurerm_storage_container" "datalake_silver_unrestricted" {
-  name                 = "unrestricted"
-  storage_account_name = azurerm_storage_account.silver_datalake.name
-}
-
-# Create gold storage account
-resource "azurerm_storage_account" "gold_datalake" {
-  name                     = "${var.resource_prefix}stgold${var.environment}"
-  resource_group_name      = azurerm_resource_group.rg_data.name
-  location                 = azurerm_resource_group.rg_data.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  is_hns_enabled           = true # This enables DataLake Gen2.
-  allow_nested_items_to_be_public = false
-}
-
-# Create containers for the gold storage account
-resource "azurerm_storage_container" "datalake_gold_restricted" {
-  name                 = "restricted"
-  storage_account_name = azurerm_storage_account.gold_datalake.name
-}
-
-resource "azurerm_storage_container" "datalake_gold_unrestricted" {
-  name                 = "unrestricted"
-  storage_account_name = azurerm_storage_account.gold_datalake.name
-}
-
 # ADF
 resource "azurerm_data_factory" "adf_data" {
   name                = "${var.resource_prefix}-adf-data-${var.environment}"
@@ -350,5 +262,14 @@ module "databricks_cluster" {
   string_value         = azurerm_storage_account.sc_datalake.primary_access_key
   azure_msi_flag       = var.azure_msi_flag
   workspace_id         = module.databricks_workspace.workspace_id
+
+}
+
+module "datalake" {
+  source               = "./modules/datalake"
+  environment          = var.environment
+  resource_prefix      = var.resource_prefix
+  resource_group_name  = azurerm_resource_group.rg_data.name
+  location             = azurerm_resource_group.rg_data.location
 
 }
