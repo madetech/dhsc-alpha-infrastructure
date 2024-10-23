@@ -101,6 +101,89 @@ resource "azurerm_storage_container" "sc_datalake_reporting_container" {
   storage_account_name = azurerm_storage_account.sc_datalake.name
 }
 
+# Create drop storage account
+resource "azurerm_storage_account" "drop_datalake" {
+  name                     = "${var.resource_prefix}dropst${var.environment}"
+  resource_group_name      = azurerm_resource_group.rg_data.name
+  location                 = azurerm_resource_group.rg_data.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true # This enables DataLake Gen2.
+}
+
+# Create containers for the drop storage account 
+resource "azurerm_storage_container" "sc_drop_datalake_restricted_container" {
+  name                 = "restricted"
+  storage_account_name = azurerm_storage_account.drop_datalake.name
+}
+
+resource "azurerm_storage_container" "sc_drop_datalake_unrestricted_container" {
+  name                 = "unrestricted"
+  storage_account_name = azurerm_storage_account.drop_datalake.name
+}
+
+# Create bronze storage account
+resource "azurerm_storage_account" "bronze_datalake" {
+  name                     = "${var.resource_prefix}bronzest${var.environment}"
+  resource_group_name      = azurerm_resource_group.rg_data.name
+  location                 = azurerm_resource_group.rg_data.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true # This enables DataLake Gen2.
+}
+
+# Create containers for the bronze storage account
+resource "azurerm_storage_container" "sc_bronze_datalake_restricted_container" {
+  name                 = "restricted"
+  storage_account_name = azurerm_storage_account.bronze_datalake.name
+}
+
+resource "azurerm_storage_container" "sc_bronze_datalake_unrestricted_container" {
+  name                 = "unrestricted"
+  storage_account_name = azurerm_storage_account.bronze_datalake.name
+}
+
+# Create silver storage account
+resource "azurerm_storage_account" "silver_datalake" {
+  name                     = "${var.resource_prefix}silverst${var.environment}"
+  resource_group_name      = azurerm_resource_group.rg_data.name
+  location                 = azurerm_resource_group.rg_data.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true # This enables DataLake Gen2.
+}
+
+# Create containers for the silver storage account
+resource "azurerm_storage_container" "sc_silver_datalake_restricted_container" {
+  name                 = "restricted"
+  storage_account_name = azurerm_storage_account.silver_datalake.name
+}
+
+resource "azurerm_storage_container" "sc_silver_datalake_unrestricted_container" {
+  name                 = "unrestricted"
+  storage_account_name = azurerm_storage_account.silver_datalake.name
+}
+
+# Create gold storage account
+resource "azurerm_storage_account" "gold_datalake" {
+  name                     = "${var.resource_prefix}goldst${var.environment}"
+  resource_group_name      = azurerm_resource_group.rg_data.name
+  location                 = azurerm_resource_group.rg_data.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true # This enables DataLake Gen2.
+}
+
+# Create containers for the gold storage account
+resource "azurerm_storage_container" "sc_gold_datalake_restricted_container" {
+  name                 = "restricted"
+  storage_account_name = azurerm_storage_account.gold_datalake.name
+}
+
+resource "azurerm_storage_container" "sc_gold_datalake_unrestricted_container" {
+  name                 = "unrestricted"
+  storage_account_name = azurerm_storage_account.gold_datalake.name
+}
 
 # ADF
 resource "azurerm_data_factory" "adf_data" {
