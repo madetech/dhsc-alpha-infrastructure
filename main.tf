@@ -47,6 +47,10 @@ resource "azuread_group" "sql_reader_group" {
   security_enabled = true
 }
 
+resource "azuread_group" "sql_unrestricted_reader_group" {
+  display_name     = "DAP Alpha - SQL Unrestricted Data Readers - ${upper(var.environment)}"
+  security_enabled = true
+}
 
 resource "azuread_group" "sql_writer_group" {
   display_name     = "DAP Alpha - SQL Writers - ${upper(var.environment)}"
@@ -100,7 +104,6 @@ resource "azurerm_storage_container" "sc_datalake_reporting_container" {
   name                 = "reporting"
   storage_account_name = azurerm_storage_account.sc_datalake.name
 }
-
 
 # ADF
 resource "azurerm_data_factory" "adf_data" {
@@ -259,5 +262,14 @@ module "databricks_cluster" {
   string_value         = azurerm_storage_account.sc_datalake.primary_access_key
   azure_msi_flag       = var.azure_msi_flag
   workspace_id         = module.databricks_workspace.workspace_id
+
+}
+
+module "datalake" {
+  source               = "./modules/datalake"
+  environment          = var.environment
+  resource_prefix      = var.resource_prefix
+  resource_group_name  = azurerm_resource_group.rg_data.name
+  location             = azurerm_resource_group.rg_data.location
 
 }
