@@ -2,6 +2,7 @@ variable "environment" {}
 variable "resource_prefix" {}
 variable "resource_group_name" {}
 variable "location" {}
+variable "data_factory_identity_id" {}
 
 # Create drop storage account
 resource "azurerm_storage_account" "drop_datalake" {
@@ -23,6 +24,13 @@ resource "azurerm_storage_container" "datalake_drop_restricted" {
 resource "azurerm_storage_container" "datalake_drop_unrestricted" {
   name                 = "unrestricted"
   storage_account_name = azurerm_storage_account.drop_datalake.name
+}
+
+# Let the Data Factory access the drop storage account
+resource "azurerm_role_assignment" "drop_adf_lake_access" {
+  scope                = azurerm_storage_account.drop_datalake.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = var.data_factory_identity_id
 }
 
 # Create bronze storage account
@@ -47,6 +55,13 @@ resource "azurerm_storage_container" "datalake_bronze_unrestricted" {
   storage_account_name = azurerm_storage_account.bronze_datalake.name
 }
 
+# Let the Data Factory access the bronze storage account
+resource "azurerm_role_assignment" "bronze_adf_lake_access" {
+  scope                = azurerm_storage_account.bronze_datalake.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = var.data_factory_identity_id
+}
+
 # Create silver storage account
 resource "azurerm_storage_account" "silver_datalake" {
   name                     = "${var.resource_prefix}stsilver${var.environment}"
@@ -69,6 +84,13 @@ resource "azurerm_storage_container" "datalake_silver_unrestricted" {
   storage_account_name = azurerm_storage_account.silver_datalake.name
 }
 
+# Let the Data Factory access the silver storage account
+resource "azurerm_role_assignment" "silver_adf_lake_access" {
+  scope                = azurerm_storage_account.silver_datalake.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = var.data_factory_identity_id
+}
+
 # Create gold storage account
 resource "azurerm_storage_account" "gold_datalake" {
   name                     = "${var.resource_prefix}stgold${var.environment}"
@@ -89,4 +111,11 @@ resource "azurerm_storage_container" "datalake_gold_restricted" {
 resource "azurerm_storage_container" "datalake_gold_unrestricted" {
   name                 = "unrestricted"
   storage_account_name = azurerm_storage_account.gold_datalake.name
+}
+
+# Let the Data Factory access the gold storage account
+resource "azurerm_role_assignment" "gold_adf_lake_access" {
+  scope                = azurerm_storage_account.gold_datalake.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = var.data_factory_identity_id
 }

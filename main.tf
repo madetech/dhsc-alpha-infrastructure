@@ -271,5 +271,6 @@ module "datalake" {
   resource_prefix      = var.resource_prefix
   resource_group_name  = azurerm_resource_group.rg_data.name
   location             = azurerm_resource_group.rg_data.location
+  data_factory_identity_id     = azurerm_data_factory.adf_data.identity[0].principal_id
 
 }
