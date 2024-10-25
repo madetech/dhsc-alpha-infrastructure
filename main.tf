@@ -243,6 +243,16 @@ module "key_vault" {
   adf_object_id       = azurerm_data_factory.adf_data.identity[0].principal_id
 }
 
+module "datalake" {
+  source               = "./modules/datalake"
+  environment          = var.environment
+  resource_prefix      = var.resource_prefix
+  resource_group_name  = azurerm_resource_group.rg_data.name
+  location             = azurerm_resource_group.rg_data.location
+  data_factory_identity_id     = azurerm_data_factory.adf_data.identity[0].principal_id
+
+}
+
 module "databricks_workspace" {
   source                   = "./modules/databricks_workspace"
   environment              = var.environment
@@ -253,24 +263,21 @@ module "databricks_workspace" {
 }
 
 module "databricks_cluster" {
-  source               = "./modules/databricks"
-  environment          = var.environment
-  resource_prefix      = var.resource_prefix
-  resource_group_name  = azurerm_resource_group.rg_data.name
-  storage_account_name = azurerm_storage_account.sc_datalake.name
-  workspace_url        = module.databricks_workspace.workspace_url
-  string_value         = azurerm_storage_account.sc_datalake.primary_access_key
-  azure_msi_flag       = var.azure_msi_flag
-  workspace_id         = module.databricks_workspace.workspace_id
-
-}
-
-module "datalake" {
-  source               = "./modules/datalake"
-  environment          = var.environment
-  resource_prefix      = var.resource_prefix
-  resource_group_name  = azurerm_resource_group.rg_data.name
-  location             = azurerm_resource_group.rg_data.location
-  data_factory_identity_id     = azurerm_data_factory.adf_data.identity[0].principal_id
-
+  source                      = "./modules/databricks"
+  environment                 = var.environment
+  resource_prefix             = var.resource_prefix
+  resource_group_name         = azurerm_resource_group.rg_data.name
+  workspace_url               = module.databricks_workspace.workspace_url
+  azure_msi_flag              = var.azure_msi_flag
+  workspace_id                = module.databricks_workspace.workspace_id
+  storage_account_name        = azurerm_storage_account.sc_datalake.name # Alpha lake
+  string_value                = azurerm_storage_account.sc_datalake.primary_access_key # Alpha lake
+  drop_storage_account_name   = module.datalake.drop_storage_account_name
+  drop_string_value           = module.datalake.drop_string_value
+  bronze_storage_account_name = module.datalake.bronze_storage_account_name
+  bronze_string_value         = module.datalake.bronze_string_value
+  silver_storage_account_name = module.datalake.silver_storage_account_name
+  silver_string_value         = module.datalake.silver_string_value
+  gold_storage_account_name   = module.datalake.gold_storage_account_name
+  gold_string_value           = module.datalake.gold_string_value
 }
