@@ -124,7 +124,7 @@ output "drop_storage_account_name" {
   value = azurerm_storage_account.drop_datalake.name
 }
 
-output "drop_string_value" {
+output "drop_primary_access_key" {
   value = azurerm_storage_account.drop_datalake.primary_access_key
 }
 
@@ -132,7 +132,7 @@ output "bronze_storage_account_name" {
   value = azurerm_storage_account.bronze_datalake.name
 }
 
-output "bronze_string_value" {
+output "bronze_primary_access_key" {
   value = azurerm_storage_account.bronze_datalake.primary_access_key
 }
 
@@ -140,7 +140,7 @@ output "silver_storage_account_name" {
   value = azurerm_storage_account.silver_datalake.name
 }
 
-output "silver_string_value" {
+output "silver_primary_access_key" {
   value = azurerm_storage_account.silver_datalake.primary_access_key
 }
 
@@ -148,6 +148,6 @@ output "gold_storage_account_name" {
   value = azurerm_storage_account.gold_datalake.name
 }
 
-output "gold_string_value" {
+output "gold_primary_access_key" {
   value = azurerm_storage_account.gold_datalake.primary_access_key
 }

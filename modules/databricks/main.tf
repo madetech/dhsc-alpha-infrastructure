@@ -7,13 +7,13 @@ variable "workspace_id" {}
 variable "storage_account_name" {} # Alpha lake
 variable "string_value" {} # Alpha lake
 variable "drop_storage_account_name" {}
-variable "drop_string_value" {}
+variable "drop_primary_access_key" {}
 variable "bronze_storage_account_name" {}
-variable "bronze_string_value" {}
+variable "bronze_primary_access_key" {}
 variable "silver_storage_account_name" {}
-variable "silver_string_value" {}
+variable "silver_primary_access_key" {}
 variable "gold_storage_account_name" {}
-variable "gold_string_value" {}
+variable "gold_primary_access_key" {}
 
 terraform {
   required_providers {
@@ -54,28 +54,28 @@ resource "databricks_secret" "dbx_secret_datalake" {
 resource "databricks_secret" "dbx_secret_drop_datalake" {
   scope        = databricks_secret_scope.dbx_secret_scope.name
   key          = "drop_datalake_access_key"
-  string_value = var.drop_string_value
+  string_value = var.drop_primary_access_key
 }
 
 # Bronze storage account
 resource "databricks_secret" "dbx_secret_bronze_datalake" {
   scope        = databricks_secret_scope.dbx_secret_scope.name
   key          = "bronze_datalake_access_key"
-  string_value = var.bronze_string_value
+  string_value = var.bronze_primary_access_key
 }
 
 # Silver storage account
 resource "databricks_secret" "dbx_secret_silver_datalake" {
   scope        = databricks_secret_scope.dbx_secret_scope.name
   key          = "silver_datalake_access_key"
-  string_value = var.silver_string_value
+  string_value = var.silver_primary_access_key
 }
 
 # Gold storage account
 resource "databricks_secret" "dbx_secret_gold_datalake" {
   scope        = databricks_secret_scope.dbx_secret_scope.name
   key          = "gold_datalake_access_key"
-  string_value = var.gold_string_value
+  string_value = var.gold_primary_access_key
 }
 
 resource "databricks_cluster" "dbx_cluster" {
