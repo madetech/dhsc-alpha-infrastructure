@@ -88,7 +88,7 @@ resource "databricks_cluster" "dbx_cluster" {
   is_pinned = true
   autoscale {
     min_workers = 1
-    max_workers = 2
+    max_workers = 3
   }
   depends_on = [databricks_secret.dbx_secret_datalake, # Alpha lake
                 databricks_secret.dbx_secret_drop_datalake,
