@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.112.0"
+      version = "4.8.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -19,6 +19,7 @@ terraform {
 
 provider "azurerm" {
   skip_provider_registration = true
+  subscription_id = var.subscription_id
   features {
   }
 }
@@ -281,3 +282,15 @@ module "databricks_cluster" {
   gold_storage_account_name   = module.datalake.gold_storage_account_name
   gold_primary_access_key     = module.datalake.gold_primary_access_key
 }
+
+
+# OpenAI resources
+//module "openai" { 
+//  source                 = "./modules/openai"
+//  environment            = var.environment
+//  resource_prefix        = var.resource_prefix
+//  resource_group_name    = azurerm_resource_group.rg_data.name
+//  location               = "UK South"
+//  # change below
+//  #ai_developers_group_id = module.groups.ai_developers_group_id
+//}

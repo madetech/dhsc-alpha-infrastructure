@@ -62,7 +62,7 @@ stages:
         inputs:
           provider: 'azurerm'
           command: 'plan'
-          commandOptions: '-out main.tfout -var="environment=${{environment.name}}"'
+          commandOptions: '-out main.tfout -var="environment=${{environment.name}}" -var="subscription_id=${{environment.subscription_id}}"'
           environmentServiceNameAzureRM: '${{environment.arm_connection}}'
       - task: PublishPipelineArtifact@1
         inputs:
