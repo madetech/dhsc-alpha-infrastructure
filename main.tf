@@ -285,12 +285,11 @@ module "databricks_cluster" {
 
 
 # OpenAI resources
-//module "openai" { 
-//  source                 = "./modules/openai"
-//  environment            = var.environment
-//  resource_prefix        = var.resource_prefix
-//  resource_group_name    = azurerm_resource_group.rg_data.name
-//  location               = "UK South"
-//  # change below
-//  #ai_developers_group_id = module.groups.ai_developers_group_id
-//}
+module "openai" { 
+  source                 = "./modules/openai"
+  environment            = var.environment
+  resource_prefix        = var.resource_prefix
+  resource_group_name    = azurerm_resource_group.rg_data.name
+  # fix location for security
+  location               = "UK South"
+}

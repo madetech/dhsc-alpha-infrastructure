@@ -26,3 +26,7 @@ variable "azure_msi_flag" {
   type    = bool
   default = false
 }
+
+variable "subscription_id" {
+  type = string
+}
