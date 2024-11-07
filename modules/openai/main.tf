@@ -28,10 +28,13 @@ resource "azurerm_cognitive_deployment" "gpt_4o" {
     version = "2024-05-13"
   }
   sku {
-    name = "Standard"
+    name = "GlobalStandard"
+    capacity = 100
   }
 
 }
+
+
 
 # returning the key for the model 
 output "openai_key" {
