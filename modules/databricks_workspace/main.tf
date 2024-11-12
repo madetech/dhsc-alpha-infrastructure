@@ -12,6 +12,7 @@ resource "azurerm_databricks_workspace" "dbx_workspace" {
   sku                 = "premium"
   custom_parameters {
     storage_account_name = "${var.resource_prefix}dbxdatadbfs${var.environment}"
+    no_public_ip = false
   }
 }
 
