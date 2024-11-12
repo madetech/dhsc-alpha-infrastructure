@@ -24,7 +24,6 @@ terraform {
   }
 }
 
-
 provider "databricks" {
   host                        = var.workspace_url
   azure_workspace_resource_id = var.workspace_id
@@ -34,6 +33,16 @@ provider "databricks" {
 data "databricks_spark_version" "latest_lts" {
   long_term_support = true
 
+  depends_on = [
+    var.workspace_url
+  ]
+}
+
+# ML runtime
+data "databricks_spark_version" "latest_lts_ml" {
+  long_term_support = true
+  ml = true
+  
   depends_on = [
     var.workspace_url
   ]
@@ -80,7 +89,7 @@ resource "databricks_secret" "dbx_secret_gold_datalake" {
 
 resource "databricks_cluster" "dbx_cluster" {
   cluster_name            = "${var.resource_prefix}dbx-cluster${var.environment}"
-  spark_version           = data.databricks_spark_version.latest_lts.id #
+  spark_version           = data.databricks_spark_version.latest_lts.id
   node_type_id            = "Standard_DS3_v2"
   driver_node_type_id     = "Standard_DS3_v2"
   enable_elastic_disk     = true
@@ -109,4 +118,29 @@ resource "databricks_cluster" "dbx_cluster" {
 
 resource "databricks_directory" "workbooks" {
   path = "/pipeline_notebooks"
+}
+
+# AI cluster
+resource "databricks_cluster" "dbx_ai_cluster" {
+  cluster_name            = "${var.resource_prefix}dbx-ai-cluster${var.environment}"
+  spark_version           = data.databricks_spark_version.latest_lts_ml.id # ML runtime
+  node_type_id            = "Standard_DS3_v2"
+  driver_node_type_id     = "Standard_DS3_v2"
+  enable_elastic_disk     = true
+  autotermination_minutes = 60
+  is_pinned = true
+  autoscale {
+    min_workers = 1
+    max_workers = 3
+  }
+  spark_conf = {
+    format("%s.%s.%s", "fs.azure.account.key", var.storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/datalake_access_key}}" # Alpha lake
+    format("%s.%s.%s", "fs.azure.account.key", var.drop_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/drop_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.bronze_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/bronze_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.silver_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/silver_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.gold_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/gold_datalake_access_key}}"
+  }
+  spark_env_vars = {
+    "ENV" = var.environment
+  }
 }
