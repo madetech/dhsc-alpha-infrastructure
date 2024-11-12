@@ -11,7 +11,7 @@ resource "azurerm_resource_group" "openai" {
 
 # define cognitive account
 resource "azurerm_cognitive_account" "openai" {
-  name                = "${var.resource_prefix}-openai-model"
+  name                = "${var.resource_prefix}-openai-model-${var.environment}"
   location            = var.location
   resource_group_name = azurerm_resource_group.openai.name
   kind                = "OpenAI"
@@ -20,7 +20,7 @@ resource "azurerm_cognitive_account" "openai" {
 
 # define deployment of gpt4o model
 resource "azurerm_cognitive_deployment" "gpt_4o" {
-  name = "GPT-4o"
+  name = "${var.resource_prefix}-GPT-4o-${var.environment}"
   cognitive_account_id = azurerm_cognitive_account.openai.id
   model {
     format  = "OpenAI"
@@ -33,7 +33,6 @@ resource "azurerm_cognitive_deployment" "gpt_4o" {
   }
 
 }
-
 
 
 # returning the key for the model 
