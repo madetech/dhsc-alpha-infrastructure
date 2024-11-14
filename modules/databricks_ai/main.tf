@@ -79,8 +79,8 @@ resource "databricks_secret" "dbx_secret_gold_datalake" {
 }
 
 # AI cluster
-resource "databricks_cluster" "dbx_ai_cluster" {
-  cluster_name            = "${var.resource_prefix}-dbx-ai-cluster-${var.environment}"
+resource "databricks_cluster" "dbx_ai_cpu_cluster" {
+  cluster_name            = "${var.resource_prefix}-dbx-ai-cpu-cluster-${var.environment}"
   spark_version           = data.databricks_spark_version.latest_lts_ml.id
   node_type_id            = "Standard_DS3_v2"
   driver_node_type_id     = "Standard_DS3_v2"
@@ -101,4 +101,29 @@ resource "databricks_cluster" "dbx_ai_cluster" {
   spark_env_vars = {
     "ENV" = var.environment
   }
+}
+
+resource "databricks_cluster" "dbx_ai_gpu_cluster" {
+  cluster_name            = "${var.resource_prefix}-dbx-ai-gpu-cluster-${var.environment}"
+  spark_version           = data.databricks_spark_version.latest_lts_ml.id  # Ensure compatibility with ML workloads
+  node_type_id            = "Standard_NC12s_v3"  # GPU-enabled node type, adjust based on GPU needs currently is 2 V100 GPUs
+  driver_node_type_id     = "Standard_NC12s_v3"
+  enable_elastic_disk     = true
+  autotermination_minutes = 60  # Adjust to allow longer inference jobs
+  is_pinned               = true
+  autoscale {
+    min_workers = 1
+    max_workers = 3
+  }
+  spark_conf = {
+    format("%s.%s.%s", "fs.azure.account.key", var.storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.drop_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/drop_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.bronze_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/bronze_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.silver_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/silver_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.gold_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/gold_datalake_access_key}}"
+  } # Might need to add init_scripts here in theory cluster should come preloaded with dependencies
+}
+
+resource "databricks_directory" "AIModel" {
+  path = "/AImodels_notebooks"
 }
