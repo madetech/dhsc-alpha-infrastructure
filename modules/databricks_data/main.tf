@@ -24,7 +24,6 @@ terraform {
   }
 }
 
-
 provider "databricks" {
   host                        = var.workspace_url
   azure_workspace_resource_id = var.workspace_id
@@ -34,6 +33,16 @@ provider "databricks" {
 data "databricks_spark_version" "latest_lts" {
   long_term_support = true
 
+  depends_on = [
+    var.workspace_url
+  ]
+}
+
+# ML runtime
+data "databricks_spark_version" "latest_lts_ml" {
+  long_term_support = true
+  ml = true
+  
   depends_on = [
     var.workspace_url
   ]
@@ -79,8 +88,8 @@ resource "databricks_secret" "dbx_secret_gold_datalake" {
 }
 
 resource "databricks_cluster" "dbx_cluster" {
-  cluster_name            = "${var.resource_prefix}dbx-cluster${var.environment}"
-  spark_version           = data.databricks_spark_version.latest_lts.id #
+  cluster_name            = "${var.resource_prefix}-dbx-cluster-${var.environment}"
+  spark_version           = data.databricks_spark_version.latest_lts.id
   node_type_id            = "Standard_DS3_v2"
   driver_node_type_id     = "Standard_DS3_v2"
   enable_elastic_disk     = true
