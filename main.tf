@@ -319,7 +319,7 @@ module "openai" {
   source                 = "./modules/openai"
   environment            = var.environment
   resource_prefix        = var.resource_prefix
-  resource_group_name    = azurerm_resource_group.rg_data.name
+  resource_group_name    = azurerm_resource_group.rg_ai.name
   # fix location for security
   location               = "UK South"
 }

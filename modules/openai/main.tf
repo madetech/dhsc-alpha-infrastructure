@@ -3,17 +3,11 @@ variable "resource_group_name" {}
 variable "location" {}
 variable "environment" {}
 
-# define the resource group
-resource "azurerm_resource_group" "openai" {
-  name     = "${var.resource_prefix}-ai-${var.environment}"
-  location = var.location
-}
-
 # define cognitive account
 resource "azurerm_cognitive_account" "openai" {
   name                = "${var.resource_prefix}-openai-model-${var.environment}"
   location            = var.location
-  resource_group_name = azurerm_resource_group.openai.name
+  resource_group_name = var.resource_group_name
   kind                = "OpenAI"
   sku_name            = "S0"
 }
@@ -33,7 +27,6 @@ resource "azurerm_cognitive_deployment" "gpt_4o" {
   }
 
 }
-
 
 # returning the key for the model 
 output "openai_key" {
