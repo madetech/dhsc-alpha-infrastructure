@@ -124,6 +124,6 @@ resource "databricks_cluster" "dbx_ai_cpu_cluster" {
 #   } # Might need to add init_scripts here in theory cluster should come preloaded with dependencies
 # }
 
-# resource "databricks_directory" "AIModel" {
-#   path = "/AImodels_notebooks"
-# }
+resource "databricks_directory" "AIModel" {
+  path = "/AImodels_notebooks"
+}
