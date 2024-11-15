@@ -73,12 +73,15 @@ resource "azurerm_storage_container" "sc_infra_container" {
   storage_account_name = azurerm_storage_account.sc_infra.name
 }
 
-
 resource "azurerm_resource_group" "rg_data" {
   name     = "${var.resource_prefix}-data-${var.environment}-rg"
   location = "UK South"
 }
 
+resource "azurerm_resource_group" "rg_ai" {
+  name     = "${var.resource_prefix}-ai-${var.environment}-rg"
+  location = "UK South"
+}
 
 # Create data lake for data rg
 resource "azurerm_storage_account" "sc_datalake" {
@@ -286,8 +289,8 @@ module "databricks_workspace_ai" {
   source                   = "./modules/databricks_workspace_ai"
   environment              = var.environment
   resource_prefix          = var.resource_prefix
-  resource_group_name      = azurerm_resource_group.rg_data.name
-  location                 = azurerm_resource_group.rg_data.location
+  resource_group_name      = azurerm_resource_group.rg_ai.name
+  location                 = azurerm_resource_group.rg_ai.location
   data_factory_identity_id = azurerm_data_factory.adf_data.identity[0].principal_id
 }
 
@@ -295,7 +298,7 @@ module "databricks_cluster_ai" {
   source                      = "./modules/databricks_ai"
   environment                 = var.environment
   resource_prefix             = var.resource_prefix
-  resource_group_name         = azurerm_resource_group.rg_data.name
+  resource_group_name         = azurerm_resource_group.rg_ai.name
   workspace_url               = module.databricks_workspace_ai.workspace_url
   azure_msi_flag              = var.azure_msi_flag
   workspace_id                = module.databricks_workspace_ai.workspace_id
