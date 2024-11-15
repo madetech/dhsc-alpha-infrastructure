@@ -116,6 +116,35 @@ resource "databricks_cluster" "dbx_cluster" {
   }
 }
 
+resource "databricks_cluster" "dbx_rstudio_cluster" {
+  cluster_name            = "${var.resource_prefix}-dbx-rstudio-cluster-${var.environment}"
+  spark_version           = data.databricks_spark_version.latest_lts_ml.id
+  node_type_id            = "Standard_DS3_v2"
+  driver_node_type_id     = "Standard_DS3_v2"
+  enable_elastic_disk     = true
+  autotermination_minutes = 0
+  is_pinned = true
+  autoscale {
+    min_workers = 1
+    max_workers = 3
+  }
+  depends_on = [databricks_secret.dbx_secret_datalake, # Alpha lake
+                databricks_secret.dbx_secret_drop_datalake,
+                databricks_secret.dbx_secret_bronze_datalake,
+                databricks_secret.dbx_secret_silver_datalake,
+                databricks_secret.dbx_secret_gold_datalake]
+  spark_conf = {
+    format("%s.%s.%s", "fs.azure.account.key", var.storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/datalake_access_key}}" # Alpha lake
+    format("%s.%s.%s", "fs.azure.account.key", var.drop_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/drop_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.bronze_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/bronze_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.silver_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/silver_datalake_access_key}}"
+    format("%s.%s.%s", "fs.azure.account.key", var.gold_storage_account_name, "dfs.core.windows.net") = "{{secrets/infrascope/gold_datalake_access_key}}"
+  }
+  spark_env_vars = {
+    "ENV" = var.environment
+  }
+}
+
 resource "databricks_directory" "workbooks" {
   path = "/pipeline_notebooks"
 }
