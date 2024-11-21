@@ -105,7 +105,7 @@ resource "databricks_cluster" "dbx_ai_cpu_cluster" {
 
 resource "databricks_cluster" "dbx_ai_gpu_cluster" {
   cluster_name            = "${var.resource_prefix}-dbx-ai-gpu-cluster-${var.environment}"
-  spark_version           = data.databricks_spark_version.latest_lts_ml.id  # Ensure compatibility with ML workloads
+  spark_version           = data.databricks_spark_version.gpu_ml.id # Ensure compatibility with ML workloads
   node_type_id            = "Standard_NC12s_v3"  # GPU-enabled node type, adjust based on GPU needs currently is 2 V100 GPUs
   driver_node_type_id     = "Standard_NC12s_v3"
   enable_elastic_disk     = true
