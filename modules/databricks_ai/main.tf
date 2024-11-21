@@ -103,11 +103,16 @@ resource "databricks_cluster" "dbx_ai_cpu_cluster" {
   }
 }
 
+data "databricks_spark_version" "gpu_ml" {
+  gpu = true
+  ml  = true
+}
+
 resource "databricks_cluster" "dbx_ai_gpu_cluster" {
   cluster_name            = "${var.resource_prefix}-dbx-ai-gpu-cluster-${var.environment}"
   spark_version           = data.databricks_spark_version.gpu_ml.id # Ensure compatibility with ML workloads
   node_type_id            = "Standard_NC12s_v3"  # GPU-enabled node type, adjust based on GPU needs currently is 2 V100 GPUs
-  driver_node_type_id     = "Standard_NC12s_v3"
+  driver_node_type_id     = "Standard_NC12s_v3" # This will need be changed later to run with databricks_node_type instead
   enable_elastic_disk     = true
   autotermination_minutes = 60  # Adjust to allow longer inference jobs
   is_pinned               = true
