@@ -1,4 +1,4 @@
-# dhsc-alpha-infrastructure
+# dhsc-gascd-infrastructure
 Infrastructure Repository for the DHSC Alpha Delivery
 
 # Terraform commands
